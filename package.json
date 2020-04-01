@@ -1,0 +1,45 @@
+{
+  "name": "vrost",
+  "version": "0.1.0",
+  "description": "FiveM voice chat script using Mumble's API",
+  "main": "server.ts",
+  "scripts": {
+    "build": "npm run buildc && npm run builds",
+    "buildc": "webpack --mode production --config client.config.js",
+    "builds": "webpack --mode production --config server.config.js",
+    "watchc": "webpack --mode development --watch true --config client.config.js",
+    "watchs": "webpack --mode development --watch true --config server.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xIAlexanderIx/vRost.git"
+  },
+  "keywords": [
+    "cfx",
+    "fivem",
+    "redm"
+  ],
+  "author": "xIAlexanderIx",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xIAlexanderIx/vRost/issues"
+  },
+  "homepage": "https://github.com/xIAlexanderIx/vRost#readme",
+  "devDependencies": {
+    "@citizenfx/client": "^1.0.2097-1",
+    "@citizenfx/server": "^1.0.2097-1",
+    "@types/node": "^13.9.4",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {}
+}
