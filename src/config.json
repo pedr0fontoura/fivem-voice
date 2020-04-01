@@ -1,5 +1,5 @@
 {
-    "enableDebugMode": true,
+    "enableDebugMode": false,
     "enableRadioModule": true,
     "enablePhoneModule": true,
     "enableGridModule": true,
@@ -9,7 +9,7 @@
     "cycleProximityHotkey": "z",
     "cycleFrequencyHotkey": "i",
     "toggleRadioHotkey": "capital",
-    "locale": "es",
+    "locale": "en",
     "voiceRanges":[
         {"name": "Normal", "distance": 9.0},
         {"name": "Shout", "distance": 24.0},

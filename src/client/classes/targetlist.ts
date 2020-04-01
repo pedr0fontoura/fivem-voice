@@ -3,10 +3,12 @@ export class TargetList {
 
     constructor() {}
 
-    add(playerID): void {
-        const exist = this.targets.some(target => target === playerID);
+    exist(playerID): boolean {
+        return this.targets.some(target => target === playerID);
+    }
 
-        if (exist) return;
+    add(playerID): void {
+        if (this.exist(playerID)) return;
 
         this.targets.push(playerID);
     }
@@ -17,10 +19,6 @@ export class TargetList {
         if (index === -1) return;
 
         this.targets.splice(index, 1);
-    }
-
-    exist(playerID): boolean {
-        return this.targets.some(target => target === playerID);
     }
 
     setTargets(targetID: number): void {

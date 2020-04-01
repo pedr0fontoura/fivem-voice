@@ -79,7 +79,7 @@ function SetPlayerRadioVolume(serverID: number, volume: number): void {
 export async function LoadModule(): Promise<void> {
     addNetEventListener('naxel:player:radio:transmission', SetPlayerTransmission.bind(this));
 
-    exports('SetPlayerRadioState', SetPlayerRadioPowerState);
+    exports('SetPlayerRadioPowerState', SetPlayerRadioPowerState);
 
     exports('SetPlayerRadioVolume', SetPlayerRadioVolume);
 

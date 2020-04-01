@@ -7,6 +7,9 @@ export const Config: RostConfig = JSON.parse(LoadResourceFile(GetCurrentResource
 export const Locales = JSON.parse(LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`));
 
 async function Init(): Promise<void> {
+    SetConvarReplicated('use3dAudio', 'true');
+    SetConvarReplicated('useSendingRangeOnly', 'true');
+
     if (Config.enablePhoneModule) {
         Phone.LoadModule();
     }
