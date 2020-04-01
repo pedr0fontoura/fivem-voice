@@ -116,7 +116,7 @@ function CycleRadioChannels(): void {
         } else {
             const nextChannel = CurrentChannelID + 1;
 
-            typeof RadioChannels[CurrentChannelID] !== 'undefined' ? SetRadioChannel(nextChannel) : SetRadioChannel(0);
+            typeof RadioChannels[nextChannel] !== 'undefined' ? SetRadioChannel(nextChannel) : SetRadioChannel(0);
         }
     } else {
         SetRadioPowerState(false);

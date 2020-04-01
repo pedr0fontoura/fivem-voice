@@ -81,6 +81,8 @@ async function Init(): Promise<void> {
     RegisterCommand('+cycleProximity', CycleVoiceProximity.bind(this), false);
     RegisterCommand('-cycleProximity', function() {}, false);
 
+    addEventListener('playerSpawned', ResetVoice);
+
     if (Config.enablePhoneModule) {
         Phone.LoadModule();
     }
