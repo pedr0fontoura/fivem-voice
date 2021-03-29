@@ -14,5 +14,5 @@
     "moduleResolution": "node"
   },
   "include": ["./**/*"],
-  "exclude": []
+  "exclude": ["**/node_modules", "**/__tests__/*"]
 }
