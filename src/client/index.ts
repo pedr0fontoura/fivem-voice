@@ -19,7 +19,7 @@ export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),
 );
 
-export let CurrentProximityRange = 0;
+export let CurrentProximityRange = 1;
 export let CurrentVoiceTarget = 1;
 
 const ActiveTargets: TargetList = new TargetList();
@@ -123,11 +123,12 @@ async function Init(): Promise<void> {
       const [x, y, z] = GetEntityCoords(GetPlayerPed(playerID), false);
 
       const distance = GetDistanceBetweenCoords(pX, pY, pZ, x, y, z, false);
+      // const distance = ((pX - x) ** 2 + (pY - y) ** 2 + (pZ - z) ** 2) ** (1 / 2);
 
       if (distance <= 128.0) {
         AddPlayerToTargetList(playerID);
       } else if (!Radio.ActiveTargets.exist(playerID) && !Phone.ActiveTargets.exist(playerID)) {
-        await RemovePlayerFromTargetList(playerID);
+        RemovePlayerFromTargetList(playerID);
 
         refresh = true;
       }

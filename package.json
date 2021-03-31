@@ -4,11 +4,8 @@
   "description": "FiveM voice chat script using Mumble's API",
   "main": "server.ts",
   "scripts": {
-    "build": "npm run buildc && npm run builds",
-    "buildc": "webpack --mode production --config client.config.js",
-    "builds": "webpack --mode production --config server.config.js",
-    "watchc": "webpack --mode development --watch true --config client.config.js",
-    "watchs": "webpack --mode development --watch true --config server.config.js"
+    "build": "webpack --mode production",
+    "watch": "webpack watch --mode development"
   },
   "repository": {
     "type": "git",

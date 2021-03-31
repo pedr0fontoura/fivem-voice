@@ -11,8 +11,8 @@ export const Locales = JSON.parse(
 );
 
 async function Init(): Promise<void> {
-  SetConvarReplicated('use3dAudio', 'true');
-  SetConvarReplicated('useSendingRangeOnly', 'true');
+  SetConvarReplicated('voice_useNativeAudio', 'true');
+  SetConvarReplicated('voice_useSendingRangeOnly', 'true');
 
   if (Config.enablePhoneModule) {
     Phone.LoadModule();

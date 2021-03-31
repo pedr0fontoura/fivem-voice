@@ -3,17 +3,17 @@ export class TargetList {
 
   constructor() {}
 
-  exist(playerID): boolean {
+  exist(playerID: number): boolean {
     return this.targets.some(target => target === playerID);
   }
 
-  add(playerID): void {
+  add(playerID: number): void {
     if (this.exist(playerID)) return;
 
     this.targets.push(playerID);
   }
 
-  remove(playerID): void {
+  remove(playerID: number): void {
     const index = this.targets.findIndex(target => target === playerID);
 
     if (index === -1) return;
