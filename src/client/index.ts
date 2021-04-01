@@ -50,7 +50,7 @@ export function RefreshTargets(): void {
 export function AddPlayerToTargetList(playerID: number): void {
   if (playerTargets.exist(playerID)) return;
 
-  MumbleAddVoiceTargetPlayer(CurrentVoiceTarget, playerID);
+  MumbleAddVoiceTargetPlayerByServerId(CurrentVoiceTarget, playerID);
 
   playerTargets.add(playerID);
 
@@ -74,7 +74,7 @@ export function RemovePlayerFromTargetList(playerID: number): void {
 function CycleVoiceProximity(): void {
   const newRange = CurrentProximityRange + 1;
 
-  if (typeof Config.voiceRanges[newRange] !== 'undefined') {
+  if (!Config.voiceRanges[newRange]) {
     CurrentProximityRange = newRange;
   } else {
     CurrentProximityRange = 0;
@@ -97,9 +97,7 @@ async function Init(): Promise<void> {
     Config.cycleProximityHotkey,
   );
   RegisterCommand('+cycleProximity', CycleVoiceProximity.bind(this), false);
-  RegisterCommand('-cycleProximity', function() {}, false);
-
-  addEventListener('playerSpawned', ResetVoice);
+  RegisterCommand('-cycleProximity', function () {}, false);
 
   if (Config.enablePhoneModule) {
     Phone.LoadModule();
@@ -114,6 +112,12 @@ async function Init(): Promise<void> {
   if (Config.enableNUIModule) {
     HUD.LoadModule();
   }
+
+  while (!MumbleIsConnected() || !NetworkIsSessionStarted()) {
+    await Wait(250);
+  }
+
+  ResetVoice();
 
   setInterval(() => {
     const [pX, pY, pZ] = GetEntityCoords(PlayerPedId(), false);
@@ -134,38 +138,6 @@ async function Init(): Promise<void> {
     }
   }, 200);
 
-  /* setTick(async () => {
-    const [pX, pY, pZ] = GetEntityCoords(PlayerPedId(), false);
-
-    const activePlayers = GetActivePlayers();
-
-    let refresh = false;
-
-    activePlayers.forEach(async playerID => {
-      const [x, y, z] = GetEntityCoords(GetPlayerPed(playerID), false);
-
-      const distance = GetDistanceBetweenCoords(pX, pY, pZ, x, y, z, false);
-      // const distance = ((pX - x) ** 2 + (pY - y) ** 2 + (pZ - z) ** 2) ** (1 / 2);
-
-      if (distance <= 128.0) {
-        AddPlayerToTargetList(playerID);
-      } else if (!Radio.playerTargets.exist(playerID) && !Phone.playerTargets.exist(playerID)) {
-        RemovePlayerFromTargetList(playerID);
-
-        refresh = true;
-      }
-    });
-
-    if (refresh) RefreshTargets();
-
-    await Wait(200);
-  }); */
-
-  while (!NetworkIsSessionStarted()) {
-    await Wait(100);
-  }
-
-  ResetVoice();
   Debug(`[Main] Voice started!`);
 }
 

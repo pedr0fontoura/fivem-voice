@@ -23,7 +23,7 @@ export default class PlayerTargetList {
 
   setTargets(targetID: number): void {
     this.targets.forEach(playerID => {
-      MumbleAddVoiceTargetPlayer(targetID, playerID);
+      MumbleAddVoiceTargetPlayerByServerId(targetID, playerID);
     });
   }
 

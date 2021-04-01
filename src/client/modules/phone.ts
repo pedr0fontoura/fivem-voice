@@ -1,13 +1,10 @@
-import { AddPlayerToTargetList } from '../index';
-import PlayerTargetList from '../classes/playerTargetList';
+import { AddPlayerToTargetList, RemovePlayerFromTargetList } from '../index';
 
 import { PhoneCall } from '../types/misc';
 
 import { Debug } from '../utils/utils';
 
 export let IsOnPhoneCall: boolean;
-
-export const ActiveTargets = new PlayerTargetList();
 
 let CurrentCall: PhoneCall;
 
@@ -24,11 +21,9 @@ function StartPhoneCall(serverID: number, callID: string): void {
     playerID: playerID,
   };
 
-  ActiveTargets.add(playerID);
+  AddPlayerToTargetList(serverID);
 
-  AddPlayerToTargetList(playerID);
-
-  MumbleSetVolumeOverride(playerID, 1.0);
+  MumbleSetVolumeOverrideByServerId(serverID, 1.0);
 
   Debug(`[Phone] Call Started | Call ID ${callID} | Player ${serverID}`);
 }
@@ -36,9 +31,9 @@ function StartPhoneCall(serverID: number, callID: string): void {
 function EndPhoneCall(callID: string): void {
   if (!IsOnPhoneCall || callID !== CurrentCall.callID) return;
 
-  MumbleSetVolumeOverride(CurrentCall.playerID, -1.0);
+  MumbleSetVolumeOverrideByServerId(CurrentCall.serverID, -1.0);
 
-  ActiveTargets.remove(CurrentCall.playerID);
+  RemovePlayerFromTargetList(CurrentCall.serverID);
 
   Debug(`[Phone] Call Ended | Call ID ${callID} | Player ${CurrentCall.serverID}`);
 

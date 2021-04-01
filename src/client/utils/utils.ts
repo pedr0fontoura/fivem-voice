@@ -23,21 +23,11 @@ export async function Debug(str: string): Promise<void> {
 }
 
 export function ResetVoice(): void {
-  const activePlayers = GetActivePlayers();
-
-  for (let i = 0; i < 30; i += 1) {
+  for (let i = 0; i < 30; i++) {
     MumbleClearVoiceTarget(i);
   }
 
-  activePlayers.forEach(playerID => {
-    MumbleSetVolumeOverride(playerID, -1.0);
-  });
-
   MumbleSetVoiceTarget(1);
-
-  NetworkSetTalkerProximity(6.0);
-
-  NetworkSetVoiceChannel(GetPlayerServerId(GetPlayerIndex()));
 }
 
 export async function LoadAnimation(lib): Promise<void> {

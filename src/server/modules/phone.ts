@@ -36,9 +36,9 @@ export function EndPhoneCall(callID: string): void {
 }
 
 export async function LoadModule(): Promise<void> {
-  exp('StartPhoneCall', StartPhoneCall);
+  exp('startPhoneCall', StartPhoneCall);
 
-  exp('EndPhoneCall', EndPhoneCall);
+  exp('endPhoneCall', EndPhoneCall);
 
   AddEventHandler('playerDropped', () => {
     const serverID = Number(source);
