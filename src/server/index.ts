@@ -1,7 +1,7 @@
 import * as Radio from './modules/radio';
 import * as Phone from './modules/phone';
 
-import { Debug } from './utils/utils';
+import { debug } from './utils/utils';
 
 import { RostConfig } from './types/misc';
 
@@ -23,7 +23,8 @@ function createChannels(): void {
   const numberOfChunks = MAP_SIZE / CHUNK_SIZE;
   let n = 0;
 
-  Debug(`[Main] Creating Mumble channels ...`);
+  debug(`[Main] Creating Mumble channels ...`);
+
   for (let x = 0; x < numberOfChunks; x++) {
     for (let y = 0; y < numberOfChunks; y++) {
       MumbleCreateChannel(getChunkId({ x, y }));
@@ -31,18 +32,19 @@ function createChannels(): void {
     }
   }
 
-  Debug(`[Main] Total channels created: ${n}`);
+  debug(`[Main] Total channels created: ${n}`);
 }
 
-async function Init(): Promise<void> {
+async function init(): Promise<void> {
   SetConvarReplicated('voice_useNativeAudio', 'true');
   SetConvarReplicated('voice_useSendingRangeOnly', 'true');
 
-  Debug(`[Main] Starting ...`);
+  debug(`[Main] Starting ...`);
+
   createChannels();
 
   if (Config.enablePhoneModule) {
-    Phone.LoadModule();
+    Phone.loadModule();
   }
 
   if (Config.enableRadioModule) {
@@ -55,5 +57,5 @@ on('onServerResourceStart', (resource: string) => {
     return;
   }
 
-  Init();
+  init();
 });

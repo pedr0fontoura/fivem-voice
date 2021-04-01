@@ -13,12 +13,12 @@ export interface RostConfig {
 }
 
 export interface RadioListener {
-  serverID: number;
+  serverId: number;
   transmitting: boolean;
 }
 
 export interface PhoneCall {
-  callID: string;
+  callId: string;
   playerA: number;
   playerB: number;
 }

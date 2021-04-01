@@ -12,13 +12,13 @@ export function _L(str: string): string {
   }
 }
 
-export async function Debug(str: string): Promise<void> {
+export async function debug(str: string): Promise<void> {
   if (!Config.enableDebugMode) return;
 
   console.log(`[${ResourceName}] ${str}`);
 }
 
-export function GetRandomString(length: number): string {
+export function getRandomString(length: number): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
   let randomString = '';

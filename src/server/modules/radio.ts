@@ -1,103 +1,103 @@
-import { RadioFrequency } from '../classes/RadioFrequency';
-import { Debug } from '../utils/utils';
+import RadioFrequency from '../classes/RadioFrequency';
+import { debug } from '../utils/utils';
 
 const exp = (<any>global).exports;
 
-const RadioFrequencies: Array<RadioFrequency> = [];
+const radioFrequencies: Array<RadioFrequency> = [];
 
-function RegisterRadioFrequency(radioID: string, authorization?: Function): void {
+function registerRadioFrequency(radioId: string, authorization?: Function): void {
   if (authorization && typeof authorization !== 'function') {
-    console.error(`Unable to Register Frequency '${radioID}', @P2 value must be of type: Function`);
+    console.error(`Unable to Register Frequency '${radioId}', @P2 value must be of type: Function`);
     return;
   }
 
-  let radioFrequency = RadioFrequencies.find(frequency => frequency.radioID === radioID);
+  let radioFrequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
   if (typeof radioFrequency === 'undefined') {
-    radioFrequency = new RadioFrequency(radioID);
+    radioFrequency = new RadioFrequency(radioId);
 
-    RadioFrequencies.push(radioFrequency);
+    radioFrequencies.push(radioFrequency);
   }
 
   if (authorization) radioFrequency.setAuthorization(authorization);
 }
 
-function AddPlayerToRadio(serverID: number, radioID: string): void {
-  let radioFrequency = RadioFrequencies.find(frequency => frequency.radioID === radioID);
+function addPlayerToRadio(serverId: number, radioId: string): void {
+  let radioFrequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
   if (typeof radioFrequency === 'undefined') {
-    radioFrequency = new RadioFrequency(radioID);
+    radioFrequency = new RadioFrequency(radioId);
 
-    RadioFrequencies.push(radioFrequency);
+    radioFrequencies.push(radioFrequency);
   }
 
-  if (radioFrequency.exist(serverID)) return;
+  if (radioFrequency.exist(serverId)) return;
 
-  const authorized = radioFrequency.hasAuthorization(serverID);
+  const authorized = radioFrequency.hasAuthorization(serverId);
 
   if (authorized) {
-    radioFrequency.addListener(serverID);
+    radioFrequency.addListener(serverId);
 
-    Debug(`[Radio] Player Added to Radio | Server ID '${serverID} | Radio ID '${radioID}'`);
+    debug(`[Radio] Player Added to Radio | Server ID '${serverId} | Radio ID '${radioId}'`);
   }
 }
 
-function RemovePlayerFromRadio(serverID: number, radioID: string): void {
-  const radioFrequency = RadioFrequencies.find(frequency => frequency.radioID === radioID);
+function removePlayerFromRadio(serverId: number, radioId: string): void {
+  const radioFrequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
   if (typeof radioFrequency !== 'undefined') {
-    radioFrequency.removeListener(serverID);
+    radioFrequency.removeListener(serverId);
 
-    Debug(`[Radio] Player Removed from Radio | Server ID '${serverID} | Radio ID '${radioID}'`);
+    debug(`[Radio] Player Removed from Radio | Server ID '${serverId} | Radio ID '${radioId}'`);
   }
 }
 
-function RemovePlayerFromAllRadios(serverID: number): void {
-  RadioFrequencies.forEach(frequency => {
-    frequency.removeListener(serverID);
+function removePlayerFromAllRadios(serverId: number): void {
+  radioFrequencies.forEach(frequency => {
+    frequency.removeListener(serverId);
   });
 }
 
-function SetPlayerTransmission(radioID: string, transmit: boolean): void {
-  const frequency = RadioFrequencies.find(frequency => frequency.radioID === radioID);
+function setPlayerTransmission(radioId: string, transmit: boolean): void {
+  const frequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
   if (typeof frequency !== 'undefined') {
-    const serverID = Number(source);
+    const serverId = parseInt(source);
 
-    frequency.setTransmission(serverID, transmit);
+    frequency.setTransmission(serverId, transmit);
 
-    Debug(`[Radio] Transmitting: ${transmit} | Server ID '${serverID} | Radio ID '${radioID}'`);
+    debug(`[Radio] Transmitting: ${transmit} | Server ID '${serverId} | Radio ID '${radioId}'`);
   }
 }
 
-function SetPlayerRadioPowerState(serverID: number, state: boolean): void {
-  TriggerClientEvent('naxel:player:radio:power', serverID, state);
+function setPlayerRadioPowerState(serverId: number, state: boolean): void {
+  TriggerClientEvent('naxel:player:radio:power', serverId, state);
 }
 
-function SetPlayerRadioVolume(serverID: number, volume: number): void {
-  TriggerClientEvent('naxel:player:radio:volume', serverID, volume);
+function setPlayerRadioVolume(serverId: number, volume: number): void {
+  TriggerClientEvent('naxel:player:radio:volume', serverId, volume);
 }
 
 export async function LoadModule(): Promise<void> {
-  addNetEventListener('naxel:player:radio:transmission', SetPlayerTransmission.bind(this));
+  addNetEventListener('naxel:player:radio:transmission', setPlayerTransmission.bind(this));
 
-  exp('SetPlayerRadioPowerState', SetPlayerRadioPowerState);
+  exp('setPlayerRadioPowerState', setPlayerRadioPowerState);
 
-  exp('SetPlayerRadioVolume', SetPlayerRadioVolume);
+  exp('setPlayerRadioVolume', setPlayerRadioVolume);
 
-  exp('RegisterRadioFrequency', RegisterRadioFrequency);
+  exp('registerRadioFrequency', registerRadioFrequency);
 
-  exp('AddPlayerToRadio', AddPlayerToRadio);
+  exp('addPlayerToRadio', addPlayerToRadio);
 
-  exp('RemovePlayerFromRadio', RemovePlayerFromRadio);
+  exp('removePlayerFromRadio', removePlayerFromRadio);
 
-  exp('RemovePlayerFromAllRadios', RemovePlayerFromAllRadios);
+  exp('removePlayerFromAllRadios', removePlayerFromAllRadios);
 
   AddEventHandler('playerDropped', () => {
-    const serverID = Number(source);
+    const serverId = parseInt(source);
 
-    RemovePlayerFromAllRadios(serverID);
+    removePlayerFromAllRadios(serverId);
   });
 
-  Debug(`[Radio] Module Loaded`);
+  debug(`[Radio] Module Loaded`);
 }
