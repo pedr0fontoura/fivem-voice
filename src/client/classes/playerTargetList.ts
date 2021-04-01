@@ -3,27 +3,27 @@ export default class PlayerTargetList {
 
   constructor() {}
 
-  exist(playerID: number): boolean {
-    return this.targets.some(target => target === playerID);
+  exist(playerId: number): boolean {
+    return this.targets.some(target => target === playerId);
   }
 
-  add(playerID: number): void {
-    if (this.exist(playerID)) return;
+  add(playerId: number): void {
+    if (this.exist(playerId)) return;
 
-    this.targets.push(playerID);
+    this.targets.push(playerId);
   }
 
-  remove(playerID: number): void {
-    const index = this.targets.findIndex(target => target === playerID);
+  remove(playerId: number): void {
+    const index = this.targets.findIndex(target => target === playerId);
 
     if (index === -1) return;
 
     this.targets.splice(index, 1);
   }
 
-  setTargets(targetID: number): void {
-    this.targets.forEach(playerID => {
-      MumbleAddVoiceTargetPlayerByServerId(targetID, playerID);
+  setTargets(targetId: number): void {
+    this.targets.forEach(playerId => {
+      MumbleAddVoiceTargetPlayerByServerId(targetId, playerId);
     });
   }
 

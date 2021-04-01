@@ -16,13 +16,13 @@ export function _L(str: string): string {
   }
 }
 
-export async function Debug(str: string): Promise<void> {
+export async function debug(str: string): Promise<void> {
   if (!Config.enableDebugMode) return;
 
   console.log(`[${ResourceName}] ${str}`);
 }
 
-export function ResetVoice(): void {
+export function resetVoice(): void {
   for (let i = 0; i < 30; i++) {
     MumbleClearVoiceTarget(i);
   }
@@ -30,7 +30,7 @@ export function ResetVoice(): void {
   MumbleSetVoiceTarget(1);
 }
 
-export async function LoadAnimation(lib): Promise<void> {
+export async function loadAnimation(lib): Promise<void> {
   if (!HasAnimDictLoaded(lib)) {
     RequestAnimDict(lib);
 

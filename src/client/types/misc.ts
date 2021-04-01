@@ -19,9 +19,8 @@ export interface VoiceProximity {
 }
 
 export interface PhoneCall {
-  serverID: number;
-  playerID: number;
-  callID: string;
+  serverId: number;
+  callId: string;
 }
 
 export interface RadioListener {

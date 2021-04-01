@@ -1,50 +1,47 @@
-import { AddPlayerToTargetList, RemovePlayerFromTargetList } from '../index';
+import { addPlayerToTargetList, removePlayerFromTargetList } from '../index';
 
 import { PhoneCall } from '../types/misc';
 
-import { Debug } from '../utils/utils';
+import { debug } from '../utils';
 
-export let IsOnPhoneCall: boolean;
+export let isOnPhoneCall: boolean;
 
-let CurrentCall: PhoneCall;
+let currentCall: PhoneCall;
 
-function StartPhoneCall(serverID: number, callID: string): void {
-  if (IsOnPhoneCall) return;
+function StartPhoneCall(serverId: number, callId: string): void {
+  if (isOnPhoneCall) return;
 
-  IsOnPhoneCall = true;
+  isOnPhoneCall = true;
 
-  const playerID = GetPlayerFromServerId(serverID);
-
-  CurrentCall = {
-    callID: callID,
-    serverID: serverID,
-    playerID: playerID,
+  currentCall = {
+    callId: callId,
+    serverId: serverId,
   };
 
-  AddPlayerToTargetList(serverID);
+  addPlayerToTargetList(serverId);
 
-  MumbleSetVolumeOverrideByServerId(serverID, 1.0);
+  MumbleSetVolumeOverrideByServerId(serverId, 1.0);
 
-  Debug(`[Phone] Call Started | Call ID ${callID} | Player ${serverID}`);
+  debug(`[Phone] Call Started | Call ID ${callId} | Player ${serverId}`);
 }
 
-function EndPhoneCall(callID: string): void {
-  if (!IsOnPhoneCall || callID !== CurrentCall.callID) return;
+function EndPhoneCall(callId: string): void {
+  if (!isOnPhoneCall || callId !== currentCall.callId) return;
 
-  MumbleSetVolumeOverrideByServerId(CurrentCall.serverID, -1.0);
+  MumbleSetVolumeOverrideByServerId(currentCall.serverId, -1.0);
 
-  RemovePlayerFromTargetList(CurrentCall.serverID);
+  removePlayerFromTargetList(currentCall.serverId);
 
-  Debug(`[Phone] Call Ended | Call ID ${callID} | Player ${CurrentCall.serverID}`);
+  debug(`[Phone] Call Ended | Call ID ${callId} | Player ${currentCall.serverId}`);
 
-  CurrentCall = null;
+  currentCall = null;
 
-  IsOnPhoneCall = false;
+  isOnPhoneCall = false;
 }
 
 export async function LoadModule(): Promise<void> {
   addNetEventListener('naxel:player:phone:connect', StartPhoneCall.bind(this));
   addNetEventListener('naxel:player:phone:disconnect', EndPhoneCall.bind(this));
 
-  Debug(`[Phone] Module Loaded`);
+  debug(`[Phone] Module Loaded`);
 }
