@@ -1,6 +1,8 @@
 import { RadioFrequency } from '../classes/RadioFrequency';
 import { Debug } from '../utils/utils';
 
+const exp = (<any>global).exports;
+
 const RadioFrequencies: Array<RadioFrequency> = [];
 
 function RegisterRadioFrequency(radioID: string, authorization?: Function): void {
@@ -79,17 +81,17 @@ function SetPlayerRadioVolume(serverID: number, volume: number): void {
 export async function LoadModule(): Promise<void> {
   addNetEventListener('naxel:player:radio:transmission', SetPlayerTransmission.bind(this));
 
-  exports('SetPlayerRadioPowerState', SetPlayerRadioPowerState);
+  exp('SetPlayerRadioPowerState', SetPlayerRadioPowerState);
 
-  exports('SetPlayerRadioVolume', SetPlayerRadioVolume);
+  exp('SetPlayerRadioVolume', SetPlayerRadioVolume);
 
-  exports('RegisterRadioFrequency', RegisterRadioFrequency);
+  exp('RegisterRadioFrequency', RegisterRadioFrequency);
 
-  exports('AddPlayerToRadio', AddPlayerToRadio);
+  exp('AddPlayerToRadio', AddPlayerToRadio);
 
-  exports('RemovePlayerFromRadio', RemovePlayerFromRadio);
+  exp('RemovePlayerFromRadio', RemovePlayerFromRadio);
 
-  exports('RemovePlayerFromAllRadios', RemovePlayerFromAllRadios);
+  exp('RemovePlayerFromAllRadios', RemovePlayerFromAllRadios);
 
   AddEventHandler('playerDropped', () => {
     const serverID = Number(source);

@@ -1,5 +1,5 @@
-export class TargetList {
-  public targets: Array<number> = [];
+export default class PlayerTargetList {
+  private targets: Array<number> = [];
 
   constructor() {}
 

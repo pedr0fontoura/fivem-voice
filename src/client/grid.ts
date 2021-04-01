@@ -13,7 +13,7 @@
 */
 
 const MAP_SIZE = 8192;
-const CHUNK_SIZE = 128;
+const CHUNK_SIZE = 256;
 const NEARBY_CHUNK_DISTANCE = ((CHUNK_SIZE / 2) ** 2 + (CHUNK_SIZE / 2) ** 2) ** (1 / 2);
 
 const DELTAS: Vector2[] = [
@@ -51,8 +51,16 @@ function getChunkId(vector: Vector2): number {
   return (vector.x << 8) | vector.y;
 }
 
-/* Get the id of the chunks near the given vector2 */
-function getNearbyChunks(vector: Vector2): number[] {
+/* Get the id of the current chunk given the Vector2 */
+export function getCurrentChunk(vector: Vector2): number {
+  const chunk = { x: getGridChunk(vector.x), y: getGridChunk(vector.y) };
+  const chunkId = getChunkId(chunk);
+
+  return chunkId;
+}
+
+/* Get the id of the chunks near the given Vector2 */
+export function getNearbyChunks(vector: Vector2): number[] {
   const nearbyChunks: number[] = [];
 
   DELTAS.forEach(delta => {

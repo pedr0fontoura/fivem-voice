@@ -1,12 +1,12 @@
 import { Debug, Wait, LoadAnimation, _L } from '../utils/utils';
 import { Config, AddPlayerToTargetList } from '../index';
-import { TargetList } from '../classes/targetlist';
+import PlayerTargetList from '../classes/playerTargetList';
 
 import { RadioChannel, RadioListener } from '../types/misc';
 
 import * as HUD from './hud';
 
-export const ActiveTargets: TargetList = new TargetList();
+export const ActiveTargets = new PlayerTargetList();
 
 const RadioChannels: Array<RadioChannel> = [];
 

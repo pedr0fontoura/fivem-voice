@@ -1,28 +1,30 @@
 import { RostConfig } from './types/misc';
 
-// Import Classes
-import { TargetList } from './classes/targetlist';
+import PlayerTargetList from './classes/playerTargetList';
+import ChannelTargetList from './classes/channelTargetList';
 
-// Import Modules
+import { getCurrentChunk, getNearbyChunks } from './grid';
+
 import * as Radio from './modules/radio';
 import * as Phone from './modules/phone';
 import * as HUD from './modules/hud';
 
-// Import Utils
 import { _L, Debug, Wait, ResetVoice } from './utils/utils';
 
-// Load Config and Locale
 export const Config: RostConfig = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), 'dist/config.json'),
 );
+
 export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),
 );
 
 export let CurrentProximityRange = 1;
 export let CurrentVoiceTarget = 1;
+let currentChunk: number;
 
-const ActiveTargets: TargetList = new TargetList();
+const playerTargets = new PlayerTargetList();
+const channelTargets = new ChannelTargetList();
 
 export function ChangeVoiceTarget(targetID: number): void {
   CurrentVoiceTarget = targetID;
@@ -37,7 +39,8 @@ export function RefreshTargets(): void {
 
   MumbleClearVoiceTarget(voiceTarget);
 
-  ActiveTargets.setTargets(voiceTarget);
+  playerTargets.setTargets(voiceTarget);
+  channelTargets.setTargets(voiceTarget);
 
   ChangeVoiceTarget(voiceTarget);
 
@@ -45,11 +48,11 @@ export function RefreshTargets(): void {
 }
 
 export function AddPlayerToTargetList(playerID: number): void {
-  if (ActiveTargets.exist(playerID)) return;
+  if (playerTargets.exist(playerID)) return;
 
   MumbleAddVoiceTargetPlayer(CurrentVoiceTarget, playerID);
 
-  ActiveTargets.add(playerID);
+  playerTargets.add(playerID);
 
   Debug(
     `[Main] Added Player to Target List | Target ID '${CurrentVoiceTarget}' | Player ID '${playerID}'`,
@@ -57,9 +60,9 @@ export function AddPlayerToTargetList(playerID: number): void {
 }
 
 export function RemovePlayerFromTargetList(playerID: number): void {
-  if (!ActiveTargets.exist(playerID)) return;
+  if (!playerTargets.exist(playerID)) return;
 
-  ActiveTargets.remove(playerID);
+  playerTargets.remove(playerID);
 
   RefreshTargets();
 
@@ -77,7 +80,7 @@ function CycleVoiceProximity(): void {
     CurrentProximityRange = 0;
   }
 
-  NetworkSetTalkerProximity(Config.voiceRanges[CurrentProximityRange].distance);
+  MumbleSetAudioInputDistance(Config.voiceRanges[CurrentProximityRange].distance);
 
   HUD.UpdateHUDProximity(Config.voiceRanges[CurrentProximityRange].name);
 
@@ -112,7 +115,26 @@ async function Init(): Promise<void> {
     HUD.LoadModule();
   }
 
-  setTick(async () => {
+  setInterval(() => {
+    const [pX, pY, pZ] = GetEntityCoords(PlayerPedId(), false);
+
+    const chunk = getCurrentChunk({ x: pX, y: pY });
+    const nearbyChunks = getNearbyChunks({ x: pX, y: pY });
+
+    if (currentChunk !== chunk) {
+      Debug(`Chunk: ${chunk} | Nearby: ${nearbyChunks} `);
+      currentChunk = chunk;
+      NetworkSetVoiceChannel(currentChunk);
+
+      channelTargets.set([chunk, ...nearbyChunks]);
+
+      if (channelTargets.shouldRefresh()) {
+        RefreshTargets();
+      }
+    }
+  }, 200);
+
+  /* setTick(async () => {
     const [pX, pY, pZ] = GetEntityCoords(PlayerPedId(), false);
 
     const activePlayers = GetActivePlayers();
@@ -127,7 +149,7 @@ async function Init(): Promise<void> {
 
       if (distance <= 128.0) {
         AddPlayerToTargetList(playerID);
-      } else if (!Radio.ActiveTargets.exist(playerID) && !Phone.ActiveTargets.exist(playerID)) {
+      } else if (!Radio.playerTargets.exist(playerID) && !Phone.playerTargets.exist(playerID)) {
         RemovePlayerFromTargetList(playerID);
 
         refresh = true;
@@ -137,13 +159,20 @@ async function Init(): Promise<void> {
     if (refresh) RefreshTargets();
 
     await Wait(200);
-  });
+  }); */
 
   while (!NetworkIsSessionStarted()) {
     await Wait(100);
   }
 
   ResetVoice();
+  Debug(`[Main] Voice started!`);
 }
 
-Init();
+on('onClientResourceStart', (resource: string) => {
+  if (resource !== GetCurrentResourceName()) {
+    return;
+  }
+
+  Init();
+});

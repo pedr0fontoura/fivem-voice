@@ -1,13 +1,13 @@
 import { AddPlayerToTargetList } from '../index';
-import { TargetList } from '../classes/targetlist';
+import PlayerTargetList from '../classes/playerTargetList';
 
 import { PhoneCall } from '../types/misc';
 
 import { Debug } from '../utils/utils';
 
-export let IsOnPhoneCall;
+export let IsOnPhoneCall: boolean;
 
-export const ActiveTargets: TargetList = new TargetList();
+export const ActiveTargets = new PlayerTargetList();
 
 let CurrentCall: PhoneCall;
 

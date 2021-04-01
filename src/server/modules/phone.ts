@@ -1,6 +1,8 @@
 import { Debug, GetRandomString } from '../utils/utils';
 import { PhoneCall } from '../types/misc';
 
+const exp = (<any>global).exports;
+
 const ActivePhoneCalls: Array<PhoneCall> = [];
 
 export function StartPhoneCall(playerA: number, playerB: number): string {
@@ -34,9 +36,9 @@ export function EndPhoneCall(callID: string): void {
 }
 
 export async function LoadModule(): Promise<void> {
-  exports('StartPhoneCall', StartPhoneCall);
+  exp('StartPhoneCall', StartPhoneCall);
 
-  exports('EndPhoneCall', EndPhoneCall);
+  exp('EndPhoneCall', EndPhoneCall);
 
   AddEventHandler('playerDropped', () => {
     const serverID = Number(source);
