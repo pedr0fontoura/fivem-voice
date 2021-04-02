@@ -21,7 +21,7 @@ export default class PlayerTargetList {
     this.targets.splice(index, 1);
   }
 
-  setTargets(targetId: number): void {
+  setTarget(targetId: number): void {
     this.targets.forEach(playerId => {
       MumbleAddVoiceTargetPlayerByServerId(targetId, playerId);
     });

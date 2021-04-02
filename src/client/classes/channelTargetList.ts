@@ -25,7 +25,7 @@ export default class ChannelTargetList {
     return false;
   }
 
-  setTargets(targetId: number): void {
+  setTarget(targetId: number): void {
     for (const channelId of this.targets.keys()) {
       MumbleAddVoiceTargetChannel(targetId, channelId);
     }

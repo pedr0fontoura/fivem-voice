@@ -1,8 +1,6 @@
 import { Config, Locales } from '../index';
 
-const ResourceName = GetCurrentResourceName();
-
-export function Wait(time: number): Promise<void> {
+export function Delay(time: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
@@ -19,13 +17,16 @@ export function _L(str: string): string {
 export async function debug(str: string): Promise<void> {
   if (!Config.enableDebugMode) return;
 
-  console.log(`[${ResourceName}] ${str}`);
+  console.log(str);
 }
 
 export function resetVoice(): void {
   for (let i = 0; i < 30; i++) {
     MumbleClearVoiceTarget(i);
   }
+
+  MumbleSetAudioInputDistance(Config.voiceRanges[1].distance);
+  MumbleSetAudioOutputDistance(Config.voiceRanges[1].distance);
 
   MumbleSetVoiceTarget(1);
 }
@@ -35,7 +36,7 @@ export async function loadAnimation(lib): Promise<void> {
     RequestAnimDict(lib);
 
     while (!HasAnimDictLoaded(lib)) {
-      await Wait(10);
+      await Delay(10);
     }
   }
 }

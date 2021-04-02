@@ -3,13 +3,13 @@ import { RostConfig } from './types/misc';
 import PlayerTargetList from './classes/playerTargetList';
 import ChannelTargetList from './classes/channelTargetList';
 
-import { getCurrentChunk, getNearbyChunks } from './grid';
+import { getCurrentChunk, getSurroundingChunks } from './grid';
 
 import * as Radio from './modules/radio';
 import * as Phone from './modules/phone';
 import * as HUD from './modules/hud';
 
-import { _L, debug, Wait, resetVoice } from './utils';
+import { _L, debug, Delay, resetVoice } from './utils';
 
 export const Config: RostConfig = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), 'dist/config.json'),
@@ -36,16 +36,12 @@ export function changeVoiceTarget(targetID: number): void {
 }
 
 export function refreshTargets(): void {
-  const voiceTarget = currentVoiceTarget === 1 ? 2 : 1;
+  MumbleClearVoiceTarget(currentVoiceTarget);
 
-  MumbleClearVoiceTarget(voiceTarget);
+  channelTargets.setTarget(currentVoiceTarget);
+  playerTargets.setTarget(currentVoiceTarget);
 
-  playerTargets.setTargets(voiceTarget);
-  channelTargets.setTargets(voiceTarget);
-
-  changeVoiceTarget(voiceTarget);
-
-  debug(`[Main] Target list has been refreshed | Target ID: ${voiceTarget}`);
+  debug(`[Main] Target list has been refreshed | Target ID: ${currentVoiceTarget}`);
 }
 
 export function addPlayerToTargetList(playerID: number): void {
@@ -75,7 +71,7 @@ export function removePlayerFromTargetList(playerID: number): void {
 function cycleVoiceProximity(): void {
   const newRange = currentProximityRange + 1;
 
-  if (!Config.voiceRanges[newRange]) {
+  if (Config.voiceRanges[newRange]) {
     currentProximityRange = newRange;
   } else {
     currentProximityRange = 0;
@@ -108,36 +104,44 @@ async function init(): Promise<void> {
     Radio.LoadModule();
   }
 
-  await Wait(1000);
+  await Delay(1000);
 
   if (Config.enableNUIModule) {
     HUD.loadModule();
   }
 
   while (!MumbleIsConnected() || !NetworkIsSessionStarted()) {
-    await Wait(250);
+    await Delay(250);
   }
 
   resetVoice();
 
-  setInterval(() => {
+  setTick(async () => {
+    while (!MumbleIsConnected()) {
+      currentChunk = -1;
+      await Delay(100);
+    }
+
     const [pX, pY, pZ] = GetEntityCoords(PlayerPedId(), false);
 
     const chunk = getCurrentChunk({ x: pX, y: pY });
-    const nearbyChunks = getNearbyChunks({ x: pX, y: pY });
 
     if (currentChunk !== chunk) {
-      debug(`Chunk: ${chunk} | Nearby: ${nearbyChunks} `);
+      debug(`[Main] Updating chunk from ${currentChunk} to ${chunk}`);
+
       currentChunk = chunk;
+
+      MumbleClearVoiceTargetChannels(1);
       NetworkSetVoiceChannel(currentChunk);
 
-      channelTargets.set([chunk, ...nearbyChunks]);
+      const nearbyChunks = getSurroundingChunks({ x: pX, y: pY });
 
-      if (channelTargets.shouldRefresh()) {
-        refreshTargets();
-      }
+      channelTargets.set([chunk, ...nearbyChunks]);
+      channelTargets.setTarget(1);
+
+      debug(`${currentChunk} | [${nearbyChunks}]`);
     }
-  }, 200);
+  });
 
   debug(`[Main] Voice started!`);
 }

@@ -1,4 +1,4 @@
-import { debug, Wait, loadAnimation, _L } from '../utils';
+import { debug, Delay, loadAnimation, _L } from '../utils';
 import { Config, addPlayerToTargetList } from '../index';
 import PlayerTargetList from '../classes/playerTargetList';
 
@@ -55,7 +55,7 @@ async function PlayRadioAnimation(): Promise<void> {
       TaskPlayAnim(playerPed, lib, anim, 8.0, 0.0, -1, 49, 0, false, false, false);
     }
 
-    await Wait(10);
+    await Delay(10);
   }
 
   StopAnimTask(playerPed, lib, anim, 3);
