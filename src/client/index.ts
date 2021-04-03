@@ -11,7 +11,7 @@ import * as HUD from './modules/hud';
 
 import { _L, debug, Delay, resetVoice } from './utils';
 
-export const Config = ((): VoiceConfig => ({
+export const Config: VoiceConfig = {
   debugMode: GetConvarInt('voice_debugMode', 0),
   enableRadioModule: !!GetConvarInt('voice_enableRadioModule', 1),
   enablePhoneModule: !!GetConvarInt('voice_enablePhoneModule', 1),
@@ -28,7 +28,7 @@ export const Config = ((): VoiceConfig => ({
     { name: 'Normal', distance: 2.0 },
     { name: 'Shout', distance: 5.0 },
   ],
-}))();
+};
 
 export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),

@@ -22,8 +22,8 @@ Voice script for FiveM using the built in Mumble server
 | voice_enablePhoneModule    | 1       | Enable phone                                                                                        | int       |
 | voice_enableNUIModule      | 1       | Enable built in UI, if disabled exposes voice:ui:update event to use the data on your own interface | int       |
 | voice_enableSubmixModule   | 1       | Enable audio submixing                                                                              | int       |
-| voice_enableRemoteClickOn  | 1       | Enable radio remote click on transmittion start                                                     | int       |
-| voice_enableRemoteClickOff | 1       | Enable radio remote click on transmittion end                                                       | int       |
+| voice_enableRemoteClickOn  | 1       | Enable radio remote click on transmission start                                                     | int       |
+| voice_enableRemoteClickOff | 1       | Enable radio remote click on transmission end                                                       | int       |
 | voice_cycleProximityHotkey | Z       | Default key to cycle through voice proximity                                                        | string    |
 | voice_cycleFrequencyHotkey | I       | Default key to cycle through radio frequencies                                                      | string    |
 | voice_toggleRadioHotkey    | CAPITAL | Default key to use the radio                                                                        | string    |

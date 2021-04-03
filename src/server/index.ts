@@ -8,7 +8,7 @@ import { VoiceConfig } from './types/misc';
 const MAP_SIZE = 8192;
 const CHUNK_SIZE = 512;
 
-export const Config = ((): VoiceConfig => ({
+export const Config: VoiceConfig = {
   debugMode: GetConvarInt('voice_debugMode', 0),
   enableRadioModule: !!GetConvarInt('voice_enableRadioModule', 1),
   enablePhoneModule: !!GetConvarInt('voice_enablePhoneModule', 1),
@@ -19,7 +19,7 @@ export const Config = ((): VoiceConfig => ({
   cycleFrequencyHotkey: GetConvar('voice_cycleFrequencyHotkey', 'I'),
   toggleRadioHotkey: GetConvar('voice_toggleRadioHotkey', 'CAPITAL'),
   locale: GetConvar('voice_locale', 'pt-BR'),
-}))();
+};
 
 export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),
