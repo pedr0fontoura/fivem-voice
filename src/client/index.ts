@@ -15,6 +15,7 @@ export const Config = ((): VoiceConfig => ({
   debugMode: GetConvarInt('voice_debugMode', 0),
   enableRadioModule: !!GetConvarInt('voice_enableRadioModule', 1),
   enablePhoneModule: !!GetConvarInt('voice_enablePhoneModule', 1),
+  enableSubmixModule: !!GetConvarInt('voice_enableSubmixModule', 1),
   enableNUIModule: !!GetConvarInt('voice_enableNUIModule', 1),
   enableRemoteClickOn: !!GetConvarInt('voice_enableRemoteClickOn', 0),
   enableRemoteClickOff: !!GetConvarInt('voice_enableRemoteClickOff', 0),

@@ -2,6 +2,7 @@ export interface VoiceConfig {
   debugMode: number;
   enableRadioModule: boolean;
   enablePhoneModule: boolean;
+  enableSubmixModule: boolean;
   enableNUIModule: boolean;
   enableRemoteClickOn: boolean;
   enableRemoteClickOff: boolean;

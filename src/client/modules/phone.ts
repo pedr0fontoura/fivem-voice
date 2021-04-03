@@ -1,6 +1,8 @@
-import { addPlayerToTargetList, removePlayerFromTargetList } from '../index';
+import { addPlayerToTargetList, Config, removePlayerFromTargetList } from '../index';
 
 import { PhoneCall } from '../types/misc';
+
+import * as Submix from './submix';
 
 import { debug } from '../utils';
 
@@ -22,6 +24,10 @@ function startPhoneCall(serverId: number, callId: string): void {
 
   MumbleSetVolumeOverrideByServerId(serverId, 1.0);
 
+  if (Config.enableSubmixModule) {
+    Submix.applyRadioSubmix(serverId);
+  }
+
   debug.log(`[Phone] Call Started | Call ID ${callId} | Player ${serverId}`);
 }
 
@@ -29,6 +35,10 @@ function endPhoneCall(callId: string): void {
   if (!isOnPhoneCall || callId !== currentCall.callId) return;
 
   MumbleSetVolumeOverrideByServerId(currentCall.serverId, -1.0);
+
+  if (Config.enableSubmixModule) {
+    Submix.reset(currentCall.serverId);
+  }
 
   removePlayerFromTargetList(currentCall.serverId);
 

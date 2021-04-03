@@ -4,6 +4,7 @@ import { Config, addPlayerToTargetList, removePlayerFromTargetList } from '../in
 import { RadioChannel, RadioListener } from '../types/misc';
 
 import * as Phone from './phone';
+import * as Submix from './submix';
 import * as HUD from './hud';
 
 const playerServerId = GetPlayerServerId(PlayerId());
@@ -238,6 +239,14 @@ function receiveRadioTransmission(radioId: string, serverId: number, transmittin
     const volume = transmitting ? radioVolume : -1.0;
 
     MumbleSetVolumeOverrideByServerId(listener.serverId, volume);
+
+    if (Config.enableSubmixModule) {
+      if (transmitting) {
+        Submix.applyRadioSubmix(listener.serverId);
+      } else {
+        Submix.reset(listener.serverId);
+      }
+    }
 
     HUD.playRemoteRadioClick(transmitting);
   }
