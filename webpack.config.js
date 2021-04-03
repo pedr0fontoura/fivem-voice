@@ -21,7 +21,6 @@ const server = {
       patterns: [
         { from: 'src/nui', to: 'nui' },
         { from: 'src/locales', to: 'locales' },
-        { from: 'src/config.json', to: 'config.json' },
       ],
     }),
   ],
