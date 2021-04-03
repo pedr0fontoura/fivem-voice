@@ -1,6 +1,6 @@
-# vRost
+# fivem-voice
 
-A FiveM voice chat script using Mumble's API
+Voice script for FiveM using the built in Mumble server
 
 ![Preview of the UI](https://i.imgur.com/7JNxvM3.png)
 
