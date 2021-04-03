@@ -13,7 +13,7 @@ function registerRadioFrequency(radioId: string, authorization?: Function): void
 
   let radioFrequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
-  if (typeof radioFrequency === 'undefined') {
+  if (!radioFrequency) {
     radioFrequency = new RadioFrequency(radioId);
 
     radioFrequencies.push(radioFrequency);
@@ -25,7 +25,7 @@ function registerRadioFrequency(radioId: string, authorization?: Function): void
 function addPlayerToRadio(serverId: number, radioId: string): void {
   let radioFrequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
-  if (typeof radioFrequency === 'undefined') {
+  if (!radioFrequency) {
     radioFrequency = new RadioFrequency(radioId);
 
     radioFrequencies.push(radioFrequency);
@@ -45,7 +45,7 @@ function addPlayerToRadio(serverId: number, radioId: string): void {
 function removePlayerFromRadio(serverId: number, radioId: string): void {
   const radioFrequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
-  if (typeof radioFrequency !== 'undefined') {
+  if (radioFrequency) {
     radioFrequency.removeListener(serverId);
 
     debug(`[Radio] Player Removed from Radio | Server ID '${serverId} | Radio ID '${radioId}'`);
@@ -61,7 +61,7 @@ function removePlayerFromAllRadios(serverId: number): void {
 function setPlayerTransmission(radioId: string, transmit: boolean): void {
   const frequency = radioFrequencies.find(frequency => frequency.radioId === radioId);
 
-  if (typeof frequency !== 'undefined') {
+  if (frequency) {
     const serverId = parseInt(source);
 
     frequency.setTransmission(serverId, transmit);
@@ -78,19 +78,14 @@ function setPlayerRadioVolume(serverId: number, volume: number): void {
   TriggerClientEvent('naxel:player:radio:volume', serverId, volume);
 }
 
-export async function LoadModule(): Promise<void> {
+export async function loadModule(): Promise<void> {
   addNetEventListener('naxel:player:radio:transmission', setPlayerTransmission.bind(this));
 
   exp('setPlayerRadioPowerState', setPlayerRadioPowerState);
-
   exp('setPlayerRadioVolume', setPlayerRadioVolume);
-
   exp('registerRadioFrequency', registerRadioFrequency);
-
   exp('addPlayerToRadio', addPlayerToRadio);
-
   exp('removePlayerFromRadio', removePlayerFromRadio);
-
   exp('removePlayerFromAllRadios', removePlayerFromAllRadios);
 
   AddEventHandler('playerDropped', () => {

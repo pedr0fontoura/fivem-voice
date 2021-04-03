@@ -24,11 +24,10 @@ export interface PhoneCall {
 }
 
 export interface RadioListener {
-  playerID: number;
-  serverID: number;
+  serverId: number;
   transmitting: boolean;
 }
 export interface RadioChannel {
-  radioID: string;
+  radioId: string;
   listeners: Map<number, RadioListener>;
 }

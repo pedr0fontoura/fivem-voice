@@ -22,7 +22,7 @@ export function updateRadioTransmitting(transmitting: boolean): void {
 }
 
 export function updateRadioFrequency(channelData: RadioChannel): void {
-  updateHUD({ type: 'frequency', frequency: channelData.radioID });
+  updateHUD({ type: 'frequency', frequency: channelData.radioId });
 }
 
 export function playRemoteRadioClick(transmitting): void {

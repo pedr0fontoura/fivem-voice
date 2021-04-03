@@ -1,12 +1,12 @@
 import { debug, Delay, loadAnimation, _L } from '../utils';
-import { Config, addPlayerToTargetList } from '../index';
-import PlayerTargetList from '../classes/playerTargetList';
+import { Config, addPlayerToTargetList, removePlayerFromTargetList } from '../index';
 
 import { RadioChannel, RadioListener } from '../types/misc';
 
+import * as Phone from './phone';
 import * as HUD from './hud';
 
-export const activeTargets = new PlayerTargetList();
+const playerServerId = GetPlayerServerId(PlayerId());
 
 const radioChannels: Array<RadioChannel> = [];
 
@@ -14,36 +14,50 @@ let currentChannel: RadioChannel, currentChannelId: number;
 
 let [isRadioOn, isTalkingOnRadio, radioVolume] = [false, false, 1.0];
 
-function SetRadioTargets(listeners: Map<number, RadioListener>): void {
+function setRadioTargets(listeners: Map<number, RadioListener>): void {
   listeners.forEach(listener => {
-    activeTargets.add(listener.playerID);
-
-    addPlayerToTargetList(listener.playerID);
+    if (listener.serverId !== playerServerId) {
+      addPlayerToTargetList(listener.serverId);
+    }
   });
 }
 
-async function SetTransmissionsVolume(
+function resetRadioTargets(listeners: Map<number, RadioListener>): void {
+  listeners.forEach(listener => {
+    if (
+      Config.enablePhoneModule &&
+      Phone.isOnPhoneCall &&
+      Phone.currentCall.serverId === listener.serverId
+    ) {
+      return;
+    }
+
+    removePlayerFromTargetList(listener.serverId);
+  });
+}
+
+async function setTransmissionsVolume(
   listeners: Map<number, RadioListener>,
   volume: number,
 ): Promise<void> {
   listeners.forEach(async listener => {
-    if (listener.transmitting) MumbleSetVolumeOverride(listener.playerID, volume);
+    if (listener.transmitting) MumbleSetVolumeOverrideByServerId(listener.serverId, volume);
   });
 }
 
-function SetRadioVolume(volume: number): void {
+function setRadioVolume(volume: number): void {
   if (volume <= 0) return;
 
   radioVolume = volume > 10 ? 1.0 : volume * 0.1;
 
   radioChannels.forEach(async channel => {
-    SetTransmissionsVolume(channel.listeners, radioVolume);
+    setTransmissionsVolume(channel.listeners, radioVolume);
   });
 
   debug(`Volume Changed | Previous '${volume}' | New ${volume}`);
 }
 
-async function PlayRadioAnimation(): Promise<void> {
+async function playRadioAnimation(): Promise<void> {
   const playerPed = GetPlayerPed(-1);
   const lib = 'random@arrests';
   const anim = 'generic_radio_chatter';
@@ -61,57 +75,57 @@ async function PlayRadioAnimation(): Promise<void> {
   StopAnimTask(playerPed, lib, anim, 3);
 }
 
-function ToggleRadioTransmission(): void {
+function toggleRadioTransmission(): void {
   if (!isRadioOn && !isTalkingOnRadio) return;
 
   isTalkingOnRadio = !isTalkingOnRadio;
 
   if (isTalkingOnRadio) {
-    SetRadioTargets(currentChannel.listeners);
+    setRadioTargets(currentChannel.listeners);
 
-    PlayRadioAnimation();
+    playRadioAnimation();
   } else {
-    activeTargets.wipe();
+    resetRadioTargets(currentChannel.listeners);
   }
 
-  TriggerServerEvent('naxel:player:radio:transmission', currentChannel.radioID, isTalkingOnRadio);
+  TriggerServerEvent('naxel:player:radio:transmission', currentChannel.radioId, isTalkingOnRadio);
 
   HUD.updateRadioTransmitting(isTalkingOnRadio);
 
   debug(
-    `[Radio] Casting: '${isTalkingOnRadio}' | Radio '${currentChannel.radioID}' | Channel '${currentChannelId}'`,
+    `[Radio] Casting: '${isTalkingOnRadio}' | Radio '${currentChannel.radioId}' | Channel '${currentChannelId}'`,
   );
 }
 
-function SetRadioPowerState(state: boolean): void {
+function setRadioPowerState(state: boolean): void {
   isRadioOn = state;
 
   const volume = isRadioOn ? radioVolume : -1.0;
 
   radioChannels.forEach(async channel => {
-    SetTransmissionsVolume(channel.listeners, volume);
+    setTransmissionsVolume(channel.listeners, volume);
   });
 
-  if (!isRadioOn && isTalkingOnRadio) ToggleRadioTransmission();
+  if (!isRadioOn && isTalkingOnRadio) toggleRadioTransmission();
 
   HUD.updateRadioPowerState(isRadioOn);
 
   debug(`[Radio] Power State: ${state}`);
 }
 
-function SetRadioChannel(channelID: number): void {
-  currentChannel = radioChannels[channelID];
-  currentChannelId = channelID;
+function setRadioChannel(channelId: number): void {
+  currentChannel = radioChannels[channelId];
+  currentChannelId = channelId;
 
   HUD.updateRadioFrequency(currentChannel);
 
   debug(
-    `[Radio] Channel Changed | Channel '${currentChannelId}'| Frequency '${currentChannel.radioID}'`,
+    `[Radio] Channel Changed | Channel '${currentChannelId}'| Frequency '${currentChannel.radioId}'`,
   );
 }
 
-function CycleRadioChannels(): void {
-  if (isTalkingOnRadio) ToggleRadioTransmission();
+function cycleRadioChannels(): void {
+  if (isTalkingOnRadio) toggleRadioTransmission();
 
   if (!isRadioOn) return;
 
@@ -119,132 +133,130 @@ function CycleRadioChannels(): void {
 
   if (channels > 0) {
     if (currentChannel === null) {
-      SetRadioChannel(0);
+      setRadioChannel(0);
     } else {
       const nextChannel = currentChannelId + 1;
 
-      typeof radioChannels[nextChannel] !== 'undefined'
-        ? SetRadioChannel(nextChannel)
-        : SetRadioChannel(0);
+      radioChannels[nextChannel] ? setRadioChannel(nextChannel) : setRadioChannel(0);
     }
   } else {
-    SetRadioPowerState(false);
+    setRadioPowerState(false);
   }
 }
 
-function ConnectToRadio(radioID: string, listeners: Array<RadioListener>): void {
-  if (isTalkingOnRadio) ToggleRadioTransmission();
+function connectToRadio(radioId: string, listeners: Array<RadioListener>): void {
+  if (isTalkingOnRadio) toggleRadioTransmission();
 
   const channelData: RadioChannel = {
-    radioID: radioID,
+    radioId: radioId,
     listeners: new Map<number, RadioListener>(),
   };
 
   listeners.forEach(listener => {
-    listener.playerID = GetPlayerFromServerId(listener.serverID);
-
-    channelData.listeners.set(listener.serverID, listener);
+    channelData.listeners.set(listener.serverId, listener);
 
     if (isRadioOn && listener.transmitting) {
-      MumbleSetVolumeOverride(listener.playerID, radioVolume);
+      MumbleSetVolumeOverrideByServerId(listener.serverId, radioVolume);
     }
   });
 
   const channels = radioChannels.push(channelData);
 
-  SetRadioChannel(channels - 1);
+  setRadioChannel(channels - 1);
 
-  debug(`[Radio] Connected | Frequency '${radioID}'`);
+  debug(`[Radio] Connected | Frequency '${radioId}'`);
 }
 
-function DisconnectFromRadio(radioID: string): void {
-  const channelID = radioChannels.findIndex(channel => channel.radioID === radioID);
+function disconnectFromRadio(radioId: string): void {
+  const channelId = radioChannels.findIndex(channel => channel.radioId === radioId);
 
-  if (channelID === -1) return;
+  if (channelId === -1) return;
 
-  const channel = radioChannels[channelID];
+  const channel = radioChannels[channelId];
 
-  SetTransmissionsVolume(channel.listeners, -1.0);
+  setTransmissionsVolume(channel.listeners, -1.0);
 
-  radioChannels.splice(channelID, 1);
+  radioChannels.splice(channelId, 1);
 
-  if (currentChannel.radioID === radioID) {
-    CycleRadioChannels();
+  if (currentChannel.radioId === radioId) {
+    cycleRadioChannels();
   }
 
-  debug(`[Radio] Disconnected | Frequency '${radioID}'`);
+  debug(`[Radio] Disconnected | Frequency '${radioId}'`);
 }
 
-function AddRadioListener(radioID: string, serverID: number): void {
-  const channel = radioChannels.find(channel => channel.radioID === radioID);
+function addRadioListener(radioId: string, serverId: number): void {
+  const channel = radioChannels.find(channel => channel.radioId === radioId);
 
-  if (typeof channel === 'undefined') return;
+  if (!channel) return;
 
-  const playerID = GetPlayerFromServerId(serverID);
-
-  channel.listeners.set(serverID, { playerID, serverID, transmitting: false });
+  channel.listeners.set(serverId, { serverId, transmitting: false });
 
   if (isTalkingOnRadio) {
-    addPlayerToTargetList(playerID);
+    addPlayerToTargetList(serverId);
   }
 
-  debug(`[Radio] Listener Added | Frequency '${radioID}' | Player '${serverID}`);
+  debug(`[Radio] Listener Added | Frequency '${radioId}' | Player '${serverId}`);
 }
 
-function RemoveRadioListener(radioID: string, serverID: number): void {
-  const channel = radioChannels.find(channel => channel.radioID === radioID);
+function removeRadioListener(radioId: string, serverId: number): void {
+  const channel = radioChannels.find(channel => channel.radioId === radioId);
 
-  if (typeof channel === 'undefined') return;
+  if (!channel) return;
 
-  const listener = channel.listeners.get(serverID);
+  const listener = channel.listeners.get(serverId);
 
-  if (typeof listener === 'undefined') return;
+  if (!listener) return;
 
-  MumbleSetVolumeOverride(listener.playerID, -1.0);
+  MumbleSetVolumeOverrideByServerId(listener.serverId, -1.0);
 
-  channel.listeners.delete(serverID);
+  channel.listeners.delete(serverId);
 
-  if (isTalkingOnRadio && currentChannel.radioID === radioID) {
-    SetRadioTargets(currentChannel.listeners);
+  if (isTalkingOnRadio && currentChannel.radioId === radioId) {
+    setRadioTargets(currentChannel.listeners);
   }
 
-  debug(`[Radio] Listener Removed | Frequency '${radioID}' | Player '${serverID}`);
+  debug(`[Radio] Listener Removed | Frequency '${radioId}' | Player '${serverId}`);
 }
 
-function ReceiveRadioTransmission(radioID: string, serverID: number, transmitting: boolean): void {
-  const channel = radioChannels.find(channel => channel.radioID === radioID);
+function receiveRadioTransmission(radioId: string, serverId: number, transmitting: boolean): void {
+  const channel = radioChannels.find(channel => channel.radioId === radioId);
 
-  if (typeof channel === 'undefined') return;
+  if (!channel) return;
 
-  const listener = channel.listeners.get(serverID);
+  const listener = channel.listeners.get(serverId);
 
-  if (typeof listener === 'undefined') return;
+  if (!listener) return;
 
   listener.transmitting = transmitting;
+
+  if (Config.enablePhoneModule && Phone.isOnPhoneCall && Phone.currentCall.serverId === serverId) {
+    return;
+  }
 
   if (isRadioOn) {
     const volume = transmitting ? radioVolume : -1.0;
 
-    MumbleSetVolumeOverride(listener.playerID, volume);
+    MumbleSetVolumeOverrideByServerId(listener.serverId, volume);
 
     HUD.playRemoteRadioClick(transmitting);
   }
 
-  debug(`[Radio] Listening: ${transmitting} | Frequency '${radioID}' | Player '${serverID}`);
+  debug(`[Radio] Listening: ${transmitting} | Frequency '${radioId}' | Player '${serverId}`);
 }
 
-export async function LoadModule(): Promise<void> {
-  addNetEventListener('naxel:player:radio:power', SetRadioPowerState.bind(this));
-  addNetEventListener('naxel:player:radio:volume', SetRadioVolume.bind(this));
-  addNetEventListener('naxel:player:radio:connect', ConnectToRadio.bind(this));
-  addNetEventListener('naxel:player:radio:disconnect', DisconnectFromRadio.bind(this));
-  addNetEventListener('naxel:player:radio:added', AddRadioListener.bind(this));
-  addNetEventListener('naxel:player:radio:removed', RemoveRadioListener.bind(this));
-  addNetEventListener('naxel:player:radio:listen', ReceiveRadioTransmission.bind(this));
+export async function loadModule(): Promise<void> {
+  addNetEventListener('naxel:player:radio:power', setRadioPowerState.bind(this));
+  addNetEventListener('naxel:player:radio:volume', setRadioVolume.bind(this));
+  addNetEventListener('naxel:player:radio:connect', connectToRadio.bind(this));
+  addNetEventListener('naxel:player:radio:disconnect', disconnectFromRadio.bind(this));
+  addNetEventListener('naxel:player:radio:added', addRadioListener.bind(this));
+  addNetEventListener('naxel:player:radio:removed', removeRadioListener.bind(this));
+  addNetEventListener('naxel:player:radio:listen', receiveRadioTransmission.bind(this));
 
   RegisterKeyMapping('+speakToRadio', _L('speakToRadio'), 'keyboard', Config.toggleRadioHotkey);
-  RegisterCommand('+speakToRadio', ToggleRadioTransmission.bind(this), false);
-  RegisterCommand('-speakToRadio', ToggleRadioTransmission.bind(this), false);
+  RegisterCommand('+speakToRadio', toggleRadioTransmission.bind(this), false);
+  RegisterCommand('-speakToRadio', toggleRadioTransmission.bind(this), false);
 
   RegisterKeyMapping(
     '+switchRadioChannel',
@@ -252,11 +264,11 @@ export async function LoadModule(): Promise<void> {
     'keyboard',
     Config.cycleFrequencyHotkey,
   );
-  RegisterCommand('+switchRadioChannel', CycleRadioChannels.bind(this), false);
+  RegisterCommand('+switchRadioChannel', cycleRadioChannels.bind(this), false);
   RegisterCommand('-switchRadioChannel', () => {}, false);
 
-  exports('SetRadioVolume', SetRadioVolume);
-  exports('SetRadioPowerState', SetRadioPowerState);
+  exports('setRadioVolume', setRadioVolume);
+  exports('setRadioPowerState', setRadioPowerState);
 
   setTick(async () => {
     if (isTalkingOnRadio) {

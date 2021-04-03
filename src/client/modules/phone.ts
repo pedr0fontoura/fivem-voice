@@ -6,9 +6,9 @@ import { debug } from '../utils';
 
 export let isOnPhoneCall: boolean;
 
-let currentCall: PhoneCall;
+export let currentCall: PhoneCall;
 
-function StartPhoneCall(serverId: number, callId: string): void {
+function startPhoneCall(serverId: number, callId: string): void {
   if (isOnPhoneCall) return;
 
   isOnPhoneCall = true;
@@ -25,7 +25,7 @@ function StartPhoneCall(serverId: number, callId: string): void {
   debug(`[Phone] Call Started | Call ID ${callId} | Player ${serverId}`);
 }
 
-function EndPhoneCall(callId: string): void {
+function endPhoneCall(callId: string): void {
   if (!isOnPhoneCall || callId !== currentCall.callId) return;
 
   MumbleSetVolumeOverrideByServerId(currentCall.serverId, -1.0);
@@ -39,9 +39,9 @@ function EndPhoneCall(callId: string): void {
   isOnPhoneCall = false;
 }
 
-export async function LoadModule(): Promise<void> {
-  addNetEventListener('naxel:player:phone:connect', StartPhoneCall.bind(this));
-  addNetEventListener('naxel:player:phone:disconnect', EndPhoneCall.bind(this));
+export async function loadModule(): Promise<void> {
+  addNetEventListener('naxel:player:phone:connect', startPhoneCall.bind(this));
+  addNetEventListener('naxel:player:phone:disconnect', endPhoneCall.bind(this));
 
   debug(`[Phone] Module Loaded`);
 }

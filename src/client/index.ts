@@ -35,36 +35,41 @@ export function changeVoiceTarget(targetID: number): void {
   debug(`[Main] Voice Target Changed | Target ID '${targetID}'`);
 }
 
-export function refreshTargets(): void {
-  MumbleClearVoiceTarget(currentVoiceTarget);
-
-  channelTargets.setTarget(currentVoiceTarget);
+export function refreshPlayerTargets(): void {
+  MumbleClearVoiceTargetPlayers(currentVoiceTarget);
   playerTargets.setTarget(currentVoiceTarget);
 
-  debug(`[Main] Target list has been refreshed | Target ID: ${currentVoiceTarget}`);
+  debug(`[Main] Player target list has been refreshed | Target ID: ${currentVoiceTarget}`);
 }
 
-export function addPlayerToTargetList(playerID: number): void {
-  if (playerTargets.exist(playerID)) return;
+export function refreshChannelTargets(): void {
+  MumbleClearVoiceTargetChannels(currentVoiceTarget);
+  channelTargets.setTarget(currentVoiceTarget);
 
-  MumbleAddVoiceTargetPlayerByServerId(currentVoiceTarget, playerID);
+  debug(`[Main] Channel target list has been refreshed | Target ID: ${currentVoiceTarget}`);
+}
 
-  playerTargets.add(playerID);
+export function addPlayerToTargetList(playerId: number): void {
+  if (playerTargets.exist(playerId)) return;
+
+  MumbleAddVoiceTargetPlayerByServerId(currentVoiceTarget, playerId);
+
+  playerTargets.add(playerId);
 
   debug(
-    `[Main] Added Player to Target List | Target ID '${currentVoiceTarget}' | Player ID '${playerID}'`,
+    `[Main] Added Player to Target List | Target ID '${currentVoiceTarget}' | Player ID '${playerId}'`,
   );
 }
 
-export function removePlayerFromTargetList(playerID: number): void {
-  if (!playerTargets.exist(playerID)) return;
+export function removePlayerFromTargetList(playerId: number): void {
+  if (!playerTargets.exist(playerId)) return;
 
-  playerTargets.remove(playerID);
+  playerTargets.remove(playerId);
 
-  refreshTargets();
+  refreshPlayerTargets();
 
   debug(
-    `[Main] Removed player from target list | Target ID '${currentVoiceTarget}' | Player ID '${playerID}'`,
+    `[Main] Removed player from target list | Target ID '${currentVoiceTarget}' | Player ID '${playerId}'`,
   );
 }
 
@@ -97,11 +102,11 @@ async function init(): Promise<void> {
   RegisterCommand('-cycleProximity', function () {}, false);
 
   if (Config.enablePhoneModule) {
-    Phone.LoadModule();
+    Phone.loadModule();
   }
 
   if (Config.enableRadioModule) {
-    Radio.LoadModule();
+    Radio.loadModule();
   }
 
   await Delay(1000);
@@ -116,7 +121,7 @@ async function init(): Promise<void> {
 
   resetVoice();
 
-  setTick(async () => {
+  setInterval(async () => {
     while (!MumbleIsConnected()) {
       currentChunk = -1;
       await Delay(100);
@@ -141,7 +146,7 @@ async function init(): Promise<void> {
 
       debug(`${currentChunk} | [${nearbyChunks}]`);
     }
-  });
+  }, 200);
 
   debug(`[Main] Voice started!`);
 }
@@ -150,6 +155,14 @@ on('onClientResourceStart', (resource: string) => {
   if (resource !== GetCurrentResourceName()) {
     return;
   }
+
+  RegisterCommand(
+    'targets',
+    () => {
+      console.log(playerTargets.targets);
+    },
+    false,
+  );
 
   init();
 });

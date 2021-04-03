@@ -42,7 +42,7 @@ async function init(): Promise<void> {
   }
 
   if (Config.enableRadioModule) {
-    Radio.LoadModule();
+    Radio.loadModule();
   }
 }
 
