@@ -40,17 +40,13 @@ export function playRemoteRadioClick(transmitting: boolean): void {
 export async function loadModule(): Promise<void> {
   updateHUD({ type: 'hud', enabled: true });
 
+  // Really need to run every tick?
   setTick(() => {
-    if (NetworkIsPlayerTalking(PlayerId()) && !isVoiceActive) {
-      isVoiceActive = true;
+    const isVoiceActiveNow = NetworkIsPlayerTalking(PlayerId());
 
-      SendNuiMessage(JSON.stringify({ type: 'voiceStatus', speaking: true }));
-    }
-
-    if (!NetworkIsPlayerTalking(PlayerId()) && isVoiceActive) {
-      isVoiceActive = false;
-
-      SendNuiMessage(JSON.stringify({ type: 'voiceStatus', speaking: false }));
+    if (isVoiceActive !== isVoiceActiveNow) {
+      isVoiceActive = isVoiceActiveNow;
+      SendNuiMessage(JSON.stringify({ type: 'voiceStatus', speaking: isVoiceActive }));
     }
   });
 }

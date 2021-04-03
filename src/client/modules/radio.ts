@@ -7,6 +7,11 @@ import * as Phone from './phone';
 import * as Submix from './submix';
 import * as HUD from './hud';
 
+const ANIM = {
+  DICT: 'random@arrests',
+  NAME: 'generic_radio_chatter',
+};
+
 const playerServerId = GetPlayerServerId(PlayerId());
 
 const radioChannels: Array<RadioChannel> = [];
@@ -14,6 +19,8 @@ const radioChannels: Array<RadioChannel> = [];
 let currentChannel: RadioChannel, currentChannelId: number;
 
 let [isRadioOn, isTalkingOnRadio, radioVolume] = [false, false, 1.0];
+
+let controlNormalTick: number;
 
 function setRadioTargets(listeners: Map<number, RadioListener>): void {
   listeners.forEach(listener => {
@@ -59,21 +66,22 @@ function setRadioVolume(volume: number): void {
 }
 
 async function playRadioAnimation(): Promise<void> {
-  const playerPed = GetPlayerPed(-1);
-  const lib = 'random@arrests';
-  const anim = 'generic_radio_chatter';
+  const playerPed = PlayerPedId();
 
-  loadAnimation(lib);
+  loadAnimation(ANIM.DICT);
 
-  while (isTalkingOnRadio) {
-    if (!IsEntityPlayingAnim(playerPed, lib, anim, 3)) {
-      TaskPlayAnim(playerPed, lib, anim, 8.0, 0.0, -1, 49, 0, false, false, false);
+  TaskPlayAnim(playerPed, ANIM.DICT, ANIM.NAME, 8.0, 0.0, -1, 49, 0, false, false, false);
+
+  const animInterval = setInterval(() => {
+    if (isTalkingOnRadio) {
+      if (!IsEntityPlayingAnim(playerPed, ANIM.DICT, ANIM.NAME, 3)) {
+        TaskPlayAnim(playerPed, ANIM.DICT, ANIM.NAME, 8.0, 0.0, -1, 49, 0, false, false, false);
+      }
+    } else {
+      clearInterval(animInterval);
+      StopAnimTask(playerPed, ANIM.DICT, ANIM.NAME, 3);
     }
-
-    await Delay(10);
-  }
-
-  StopAnimTask(playerPed, lib, anim, 3);
+  }, 500);
 }
 
 function toggleRadioTransmission(): void {
@@ -281,7 +289,7 @@ export async function loadModule(): Promise<void> {
   exports('setRadioVolume', setRadioVolume);
   exports('setRadioPowerState', setRadioPowerState);
 
-  setTick(async () => {
+  setTick(() => {
     if (isTalkingOnRadio) {
       SetControlNormal(0, 249, 1.0);
     }

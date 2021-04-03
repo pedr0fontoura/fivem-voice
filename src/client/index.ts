@@ -139,7 +139,7 @@ async function init(): Promise<void> {
 
   setInterval(async () => {
     while (!MumbleIsConnected()) {
-      currentChunk = -1;
+      currentChunk = null;
       await Delay(100);
     }
 
