@@ -1,9 +1,11 @@
 # vRost
+
 A FiveM voice chat script using Mumble's API
 
 ![Preview of the UI](https://i.imgur.com/7JNxvM3.png)
 
 **Current Features**
+
 - Proximity Based Voice Targeting (Temporal until a stable grid system is achievable)
 - Frequency Based Radio System
 - Per Frequency Access Control
@@ -11,47 +13,56 @@ A FiveM voice chat script using Mumble's API
 - Basic Phone System
 - UI for Radio Frequencies and Voice Range
 
+**ConVars**
 
-**Upcoming Features**
-- [ ] Phone Loudspeaker
-- [ ] Radio Eavesdropping
-- [ ] Grid Based Voice Targeting
-- [ ] Suggestions?
+| Export                     | Default | Description                                                                                         | Parameter |
+| -------------------------- | ------- | --------------------------------------------------------------------------------------------------- | --------- |
+| voice_debugMode            | 0       | 1: log, 2: verbose                                                                                  | int       |
+| voice_enableRadioModule    | 1       | Enable radio                                                                                        | int       |
+| voice_enablePhoneModule    | 1       | Enable phone                                                                                        | int       |
+| voice_enableNUIModule      | 1       | Enable built in UI, if disabled exposes voice:ui:update event to use the data on your own interface | int       |
+| voice_enableSubmixModule   | 1       | Enable audio submixing                                                                              | int       |
+| voice_enableRemoteClickOn  | 1       | Enable radio remote click on transmittion start                                                     | int       |
+| voice_enableRemoteClickOff | 1       | Enable radio remote click on transmittion end                                                       | int       |
+| voice_cycleProximityHotkey | Z       | Default key to cycle through voice proximity                                                        | string    |
+| voice_cycleFrequencyHotkey | I       | Default key to cycle through radio frequencies                                                      | string    |
+| voice_toggleRadioHotkey    | CAPITAL | Default key to use the radio                                                                        | string    |
+| voice_locale               | pt-BR   | Locales for RegisterKeyMapping and built in UI                                                      | string    |
 
 **Client Exports**
 
-| Export              | Parameters   |
-|---------------------|--------------|
-| SetRadioPowerState  | state (bool) |
-| SetRadioVolume      | volume (int) |
+| Export             | Parameters   | Return |
+| ------------------ | ------------ | ------ |
+| setRadioPowerState | state (bool) | void   |
+| setRadioVolume     | volume (int) | void   |
 
 **Server Exports**
 
-| Export                      | Parameters                               |
-|-----------------------------|------------------------------------------|
-| SetPlayerRadioPowerState    | serverID (int), state (bool)             |
-| SetPlayerRadioVolume        | serverID (int), volume (int)             |
-| RegisterRadioFrequency      | frequency (string), authorization (func) |
-| AddPlayerToRadio            | serverID (int), frequency (string)       |
-| RemovePlayerFromRadio       | serverID (int), frequency (string)       |
-| RemovePlayerFromAllRadios   | serverID (int)                           |
-| StartPhoneCall              | playerA (int), playerB (int)             |
-| EndPhoneCall                | callID (string)                          |
-
-## Usage
-**Note:** This is mostly a developer resource, if you are coming from TokoVOIP or want a quick start, I recommend you to also check out my [Toko wrapper](https://github.com/xIAlexanderIx/tokovoip_wrapper)
+| Export                    | Parameters                               | Return          |
+| ------------------------- | ---------------------------------------- | --------------- |
+| setPlayerRadioPowerState  | serverID (int), state (bool)             | void            |
+| setPlayerRadioVolume      | serverID (int), volume (int)             | void            |
+| registerRadioFrequency    | frequency (string), authorization (func) | void            |
+| addPlayerToRadio          | serverID (int), frequency (string)       | void            |
+| removePlayerFromRadio     | serverID (int), frequency (string)       | void            |
+| removePlayerFromAllRadios | serverID (int)                           | void            |
+| startPhoneCall            | playerA (int), playerB (int)             | callId (string) |
+| endPhoneCall              | callID (string)                          | void            |
 
 **Default Hotkeys**
+
 - Cycle Voice Range: **Z**
 - Cycle Radio Channels: **I**
 - Transmit to Radio: **CAPSLOCK**
 
 **Range Indicator**
-- Green: **Normal** (Default 6 Units)
-- Orange: **Shout** (Default 24 Units)
-- Purple: **Whisper** (Default 3 Units)
+
+- Green: **Normal**
+- Orange: **Shout**
+- Purple: **Whisper**
 
 **Radio Indicator**
+
 - White: **Idle**
 - Red: **Transmitting**
 
@@ -60,6 +71,7 @@ A FiveM voice chat script using Mumble's API
 Its possible to restrict the access of a specific frequency just by using **"RegisterRadioFrequency"**, all you need to do is to include your authorization method while registering the frequency, this gives you the freedom to make a custom authorization procedure that fits your needs.
 
 Every authorization method is invoked with three parameters:
+
 1. The Server ID of the player that is trying to connect
 2. The frequency that is being authorized
 3. The amount of players connected to the frequency
@@ -74,8 +86,8 @@ Citizen.CreateThread(function()
         local player = ESX.GetPlayerFromId(source)
 
         local item = player.getInventoryItem("radio")
-        
-        return item.count >= 1   
+
+        return item.count >= 1
     end)
 end)
 ```
@@ -88,8 +100,8 @@ Citizen.CreateThread(function()
         local player = ESX.GetPlayerFromId(source)
 
         local item = player.getInventoryItem("radio")
-        
-        return item.count >= 1 and player.job.name == "police"    
+
+        return item.count >= 1 and player.job.name == "police"
     end)
 end)
 
@@ -100,7 +112,7 @@ Restrict the amount of players that can use the frequency
 ```lua
 Citizen.CreateThread(function()
     RegisterRadioFrequency("420.0", function(source, frequency, size)
-        return size < 15 
+        return size < 15
     end)
 end)
 
@@ -108,5 +120,5 @@ end)
 
 ## Credits
 
-- Zirconium for providing the base snippet of the grid system (Not available in this release)
-- TokoVOIP for some of the inspiration
+- d-bub for providing the base snippet of the grid system
+- [xIAlexanderIx](https://github.com/xIAlexanderIx) for vRost, the original resource that fivem-voice is built on top of.
