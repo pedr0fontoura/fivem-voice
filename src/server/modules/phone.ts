@@ -10,8 +10,8 @@ export function startPhoneCall(playerA: number, playerB: number): string {
 
   ActivePhoneCalls.push({ callId, playerA, playerB });
 
-  TriggerClientEvent('naxel:player:phone:connect', playerA, playerB, callId);
-  TriggerClientEvent('naxel:player:phone:connect', playerB, playerA, callId);
+  TriggerClientEvent('voice:player:phone:connect', playerA, playerB, callId);
+  TriggerClientEvent('voice:player:phone:connect', playerB, playerA, callId);
 
   debug.verbose(
     `[Phone] Call Started | Call ID ${callId} | Player A ${playerA} | Player B ${playerB}`,
@@ -27,8 +27,8 @@ export function endPhoneCall(callId: string): void {
 
   const callData = ActivePhoneCalls[callIndex];
 
-  TriggerClientEvent('naxel:player:phone:disconnect', callData.playerA, callId);
-  TriggerClientEvent('naxel:player:phone:disconnect', callData.playerB, callId);
+  TriggerClientEvent('voice:player:phone:disconnect', callData.playerA, callId);
+  TriggerClientEvent('voice:player:phone:disconnect', callData.playerB, callId);
 
   debug.verbose(
     `[Phone] Call Ended | Call ID ${callId} | Player A ${callData.playerA} | Player B ${callData.playerB}`,

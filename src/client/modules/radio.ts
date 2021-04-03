@@ -88,7 +88,7 @@ function toggleRadioTransmission(): void {
     resetRadioTargets(currentChannel.listeners);
   }
 
-  TriggerServerEvent('naxel:player:radio:transmission', currentChannel.radioId, isTalkingOnRadio);
+  TriggerServerEvent('voice:player:radio:transmission', currentChannel.radioId, isTalkingOnRadio);
 
   HUD.updateRadioTransmitting(isTalkingOnRadio);
 
@@ -248,13 +248,13 @@ function receiveRadioTransmission(radioId: string, serverId: number, transmittin
 }
 
 export async function loadModule(): Promise<void> {
-  addNetEventListener('naxel:player:radio:power', setRadioPowerState.bind(this));
-  addNetEventListener('naxel:player:radio:volume', setRadioVolume.bind(this));
-  addNetEventListener('naxel:player:radio:connect', connectToRadio.bind(this));
-  addNetEventListener('naxel:player:radio:disconnect', disconnectFromRadio.bind(this));
-  addNetEventListener('naxel:player:radio:added', addRadioListener.bind(this));
-  addNetEventListener('naxel:player:radio:removed', removeRadioListener.bind(this));
-  addNetEventListener('naxel:player:radio:listen', receiveRadioTransmission.bind(this));
+  addNetEventListener('voice:player:radio:power', setRadioPowerState.bind(this));
+  addNetEventListener('voice:player:radio:volume', setRadioVolume.bind(this));
+  addNetEventListener('voice:player:radio:connect', connectToRadio.bind(this));
+  addNetEventListener('voice:player:radio:disconnect', disconnectFromRadio.bind(this));
+  addNetEventListener('voice:player:radio:added', addRadioListener.bind(this));
+  addNetEventListener('voice:player:radio:removed', removeRadioListener.bind(this));
+  addNetEventListener('voice:player:radio:listen', receiveRadioTransmission.bind(this));
 
   RegisterKeyMapping('+speakToRadio', _L('speakToRadio'), 'keyboard', Config.toggleRadioHotkey);
   RegisterCommand('+speakToRadio', toggleRadioTransmission.bind(this), false);

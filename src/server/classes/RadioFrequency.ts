@@ -33,11 +33,11 @@ export default class RadioFrequency {
 
     this.listeners.forEach(listener => {
       if (listener.serverId !== serverId) {
-        TriggerClientEvent('naxel:player:radio:added', listener.serverId, this.radioId, serverId);
+        TriggerClientEvent('voice:player:radio:added', listener.serverId, this.radioId, serverId);
       }
     });
 
-    TriggerClientEvent('naxel:player:radio:connect', serverId, this.radioId, this.listeners);
+    TriggerClientEvent('voice:player:radio:connect', serverId, this.radioId, this.listeners);
   }
 
   removeListener(serverId: number): void {
@@ -48,10 +48,10 @@ export default class RadioFrequency {
     this.listeners.splice(userIndex, 1);
 
     this.listeners.forEach(listener => {
-      TriggerClientEvent('naxel:player:radio:removed', listener.serverId, this.radioId, serverId);
+      TriggerClientEvent('voice:player:radio:removed', listener.serverId, this.radioId, serverId);
     });
 
-    TriggerClientEvent('naxel:player:radio:disconnect', serverId, this.radioId);
+    TriggerClientEvent('voice:player:radio:disconnect', serverId, this.radioId);
   }
 
   setTransmission(serverId: number, active: boolean): void {
@@ -60,7 +60,7 @@ export default class RadioFrequency {
     this.listeners.forEach(listener => {
       if (listener.serverId !== serverId) {
         TriggerClientEvent(
-          'naxel:player:radio:listen',
+          'voice:player:radio:listen',
           listener.serverId,
           this.radioId,
           serverId,

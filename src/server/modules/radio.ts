@@ -75,15 +75,15 @@ function setPlayerTransmission(radioId: string, transmit: boolean): void {
 }
 
 function setPlayerRadioPowerState(serverId: number, state: boolean): void {
-  TriggerClientEvent('naxel:player:radio:power', serverId, state);
+  TriggerClientEvent('voice:player:radio:power', serverId, state);
 }
 
 function setPlayerRadioVolume(serverId: number, volume: number): void {
-  TriggerClientEvent('naxel:player:radio:volume', serverId, volume);
+  TriggerClientEvent('voice:player:radio:volume', serverId, volume);
 }
 
 export async function loadModule(): Promise<void> {
-  addNetEventListener('naxel:player:radio:transmission', setPlayerTransmission.bind(this));
+  addNetEventListener('voice:player:radio:transmission', setPlayerTransmission.bind(this));
 
   exp('setPlayerRadioPowerState', setPlayerRadioPowerState);
   exp('setPlayerRadioVolume', setPlayerRadioVolume);

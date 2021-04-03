@@ -40,8 +40,8 @@ function endPhoneCall(callId: string): void {
 }
 
 export async function loadModule(): Promise<void> {
-  addNetEventListener('naxel:player:phone:connect', startPhoneCall.bind(this));
-  addNetEventListener('naxel:player:phone:disconnect', endPhoneCall.bind(this));
+  addNetEventListener('voice:player:phone:connect', startPhoneCall.bind(this));
+  addNetEventListener('voice:player:phone:disconnect', endPhoneCall.bind(this));
 
   debug.log(`[Phone] Module Loaded`);
 }
