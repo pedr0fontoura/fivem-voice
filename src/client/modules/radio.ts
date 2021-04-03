@@ -54,7 +54,7 @@ function setRadioVolume(volume: number): void {
     setTransmissionsVolume(channel.listeners, radioVolume);
   });
 
-  debug(`Volume Changed | Previous '${volume}' | New ${volume}`);
+  debug.verbose(`Volume Changed | Previous '${volume}' | New ${volume}`);
 }
 
 async function playRadioAnimation(): Promise<void> {
@@ -92,7 +92,7 @@ function toggleRadioTransmission(): void {
 
   HUD.updateRadioTransmitting(isTalkingOnRadio);
 
-  debug(
+  debug.verbose(
     `[Radio] Casting: '${isTalkingOnRadio}' | Radio '${currentChannel.radioId}' | Channel '${currentChannelId}'`,
   );
 }
@@ -110,7 +110,7 @@ function setRadioPowerState(state: boolean): void {
 
   HUD.updateRadioPowerState(isRadioOn);
 
-  debug(`[Radio] Power State: ${state}`);
+  debug.log(`[Radio] Power State: ${state}`);
 }
 
 function setRadioChannel(channelId: number): void {
@@ -119,7 +119,7 @@ function setRadioChannel(channelId: number): void {
 
   HUD.updateRadioFrequency(currentChannel);
 
-  debug(
+  debug.verbose(
     `[Radio] Channel Changed | Channel '${currentChannelId}'| Frequency '${currentChannel.radioId}'`,
   );
 }
@@ -164,7 +164,7 @@ function connectToRadio(radioId: string, listeners: Array<RadioListener>): void 
 
   setRadioChannel(channels - 1);
 
-  debug(`[Radio] Connected | Frequency '${radioId}'`);
+  debug.log(`[Radio] Connected | Frequency '${radioId}'`);
 }
 
 function disconnectFromRadio(radioId: string): void {
@@ -182,7 +182,7 @@ function disconnectFromRadio(radioId: string): void {
     cycleRadioChannels();
   }
 
-  debug(`[Radio] Disconnected | Frequency '${radioId}'`);
+  debug.log(`[Radio] Disconnected | Frequency '${radioId}'`);
 }
 
 function addRadioListener(radioId: string, serverId: number): void {
@@ -196,7 +196,7 @@ function addRadioListener(radioId: string, serverId: number): void {
     addPlayerToTargetList(serverId);
   }
 
-  debug(`[Radio] Listener Added | Frequency '${radioId}' | Player '${serverId}`);
+  debug.verbose(`[Radio] Listener Added | Frequency '${radioId}' | Player '${serverId}`);
 }
 
 function removeRadioListener(radioId: string, serverId: number): void {
@@ -216,7 +216,7 @@ function removeRadioListener(radioId: string, serverId: number): void {
     setRadioTargets(currentChannel.listeners);
   }
 
-  debug(`[Radio] Listener Removed | Frequency '${radioId}' | Player '${serverId}`);
+  debug.verbose(`[Radio] Listener Removed | Frequency '${radioId}' | Player '${serverId}`);
 }
 
 function receiveRadioTransmission(radioId: string, serverId: number, transmitting: boolean): void {
@@ -242,7 +242,9 @@ function receiveRadioTransmission(radioId: string, serverId: number, transmittin
     HUD.playRemoteRadioClick(transmitting);
   }
 
-  debug(`[Radio] Listening: ${transmitting} | Frequency '${radioId}' | Player '${serverId}`);
+  debug.verbose(
+    `[Radio] Listening: ${transmitting} | Frequency '${radioId}' | Player '${serverId}`,
+  );
 }
 
 export async function loadModule(): Promise<void> {
@@ -276,5 +278,5 @@ export async function loadModule(): Promise<void> {
     }
   });
 
-  debug(`[Radio] Module Loaded`);
+  debug.log(`[Radio] Module Loaded`);
 }

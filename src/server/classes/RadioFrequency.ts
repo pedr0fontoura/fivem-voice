@@ -32,7 +32,6 @@ export default class RadioFrequency {
     this.listeners.push({ serverId: serverId, transmitting: false });
 
     this.listeners.forEach(listener => {
-      console.log(listener);
       if (listener.serverId !== serverId) {
         TriggerClientEvent('naxel:player:radio:added', listener.serverId, this.radioId, serverId);
       }

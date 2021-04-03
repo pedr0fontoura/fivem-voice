@@ -1,8 +1,7 @@
-export interface RostConfig {
-  enableDebugMode: boolean;
+export interface VoiceConfig {
+  debugMode: number;
   enableRadioModule: boolean;
   enablePhoneModule: boolean;
-  enableGridModule: boolean;
   enableNUIModule: boolean;
   enableRemoteClickOn: boolean;
   enableRemoteClickOff: boolean;

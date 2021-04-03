@@ -38,7 +38,7 @@ function addPlayerToRadio(serverId: number, radioId: string): void {
   if (authorized) {
     radioFrequency.addListener(serverId);
 
-    debug(`[Radio] Player Added to Radio | Server ID '${serverId} | Radio ID '${radioId}'`);
+    debug.verbose(`[Radio] Player Added to Radio | Server ID '${serverId} | Radio ID '${radioId}'`);
   }
 }
 
@@ -48,7 +48,9 @@ function removePlayerFromRadio(serverId: number, radioId: string): void {
   if (radioFrequency) {
     radioFrequency.removeListener(serverId);
 
-    debug(`[Radio] Player Removed from Radio | Server ID '${serverId} | Radio ID '${radioId}'`);
+    debug.verbose(
+      `[Radio] Player Removed from Radio | Server ID '${serverId} | Radio ID '${radioId}'`,
+    );
   }
 }
 
@@ -66,7 +68,9 @@ function setPlayerTransmission(radioId: string, transmit: boolean): void {
 
     frequency.setTransmission(serverId, transmit);
 
-    debug(`[Radio] Transmitting: ${transmit} | Server ID '${serverId} | Radio ID '${radioId}'`);
+    debug.verbose(
+      `[Radio] Transmitting: ${transmit} | Server ID '${serverId} | Radio ID '${radioId}'`,
+    );
   }
 }
 
@@ -94,5 +98,5 @@ export async function loadModule(): Promise<void> {
     removePlayerFromAllRadios(serverId);
   });
 
-  debug(`[Radio] Module Loaded`);
+  debug.log(`[Radio] Module Loaded`);
 }

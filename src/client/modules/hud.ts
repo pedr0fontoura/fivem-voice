@@ -3,10 +3,12 @@ import { RadioChannel } from '../types/misc';
 
 let isVoiceActive = false;
 
-export async function updateHUD(payload): Promise<void> {
-  if (!Config.enableNUIModule) return;
-
-  SendNuiMessage(JSON.stringify(payload));
+export async function updateHUD(payload: any): Promise<void> {
+  if (Config.enableNUIModule) {
+    SendNuiMessage(JSON.stringify(payload));
+  } else {
+    emit('voice:ui:update', JSON.stringify(payload));
+  }
 }
 
 export function updateHUDProximity(range: string): void {
@@ -25,7 +27,7 @@ export function updateRadioFrequency(channelData: RadioChannel): void {
   updateHUD({ type: 'frequency', frequency: channelData.radioId });
 }
 
-export function playRemoteRadioClick(transmitting): void {
+export function playRemoteRadioClick(transmitting: boolean): void {
   if (
     (transmitting && !Config.enableRemoteClickOn) ||
     (!transmitting && !Config.enableRemoteClickOff)

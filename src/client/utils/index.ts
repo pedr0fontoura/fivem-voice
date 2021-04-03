@@ -5,20 +5,23 @@ export function Delay(time: number): Promise<void> {
 }
 
 export function _L(str: string): string {
-  if (Locales === null) return `Locale '${Config.locale}' not Found`;
+  if (!Locales) return `Locale '${Config.locale}' not found`;
 
-  if (typeof Locales[str] !== 'undefined') {
-    return Locales[str];
-  } else {
-    return `Translation for '${str}' not Found`;
-  }
+  return Locales[str] ? Locales[str] : `Translation for '${str}' not found`;
 }
 
-export async function debug(str: string): Promise<void> {
-  if (!Config.enableDebugMode) return;
-
-  console.log(str);
-}
+export const debug = {
+  log: (str: string) => {
+    if (Config.debugMode >= 1) {
+      console.log(str);
+    }
+  },
+  verbose: (str: string) => {
+    if (Config.debugMode >= 2) {
+      console.log(str);
+    }
+  },
+};
 
 export function resetVoice(): void {
   for (let i = 0; i < 30; i++) {
@@ -31,11 +34,11 @@ export function resetVoice(): void {
   MumbleSetVoiceTarget(1);
 }
 
-export async function loadAnimation(lib): Promise<void> {
-  if (!HasAnimDictLoaded(lib)) {
-    RequestAnimDict(lib);
+export async function loadAnimation(dict: string): Promise<void> {
+  if (!HasAnimDictLoaded(dict)) {
+    RequestAnimDict(dict);
 
-    while (!HasAnimDictLoaded(lib)) {
+    while (!HasAnimDictLoaded(dict)) {
       await Delay(10);
     }
   }

@@ -1,4 +1,4 @@
-import { RostConfig } from './types/misc';
+import { VoiceConfig } from './types/misc';
 
 import PlayerTargetList from './classes/playerTargetList';
 import ChannelTargetList from './classes/channelTargetList';
@@ -11,9 +11,23 @@ import * as HUD from './modules/hud';
 
 import { _L, debug, Delay, resetVoice } from './utils';
 
-export const Config: RostConfig = JSON.parse(
-  LoadResourceFile(GetCurrentResourceName(), 'dist/config.json'),
-);
+export const Config = ((): VoiceConfig => ({
+  debugMode: GetConvarInt('voice_debugMode', 0),
+  enableRadioModule: !!GetConvarInt('voice_enableRadioModule', 1),
+  enablePhoneModule: !!GetConvarInt('voice_enablePhoneModule', 1),
+  enableNUIModule: !!GetConvarInt('voice_enableNUIModule', 1),
+  enableRemoteClickOn: !!GetConvarInt('voice_enableRemoteClickOn', 0),
+  enableRemoteClickOff: !!GetConvarInt('voice_enableRemoteClickOff', 0),
+  cycleProximityHotkey: GetConvar('voice_cycleProximityHotkey', 'Z'),
+  cycleFrequencyHotkey: GetConvar('voice_cycleFrequencyHotkey', 'I'),
+  toggleRadioHotkey: GetConvar('voice_toggleRadioHotkey', 'CAPITAL'),
+  locale: GetConvar('voice_locale', 'pt-BR'),
+  voiceRanges: [
+    { name: 'Whisper', distance: 0.75 },
+    { name: 'Normal', distance: 2.0 },
+    { name: 'Shout', distance: 5.0 },
+  ],
+}))();
 
 export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),
@@ -31,22 +45,23 @@ export function changeVoiceTarget(targetID: number): void {
   currentVoiceTarget = targetID;
 
   MumbleSetVoiceTarget(targetID);
+  console.log();
 
-  debug(`[Main] Voice Target Changed | Target ID '${targetID}'`);
+  debug.verbose(`[Main] Voice Target Changed | Target ID '${targetID}'`);
 }
 
 export function refreshPlayerTargets(): void {
   MumbleClearVoiceTargetPlayers(currentVoiceTarget);
   playerTargets.setTarget(currentVoiceTarget);
 
-  debug(`[Main] Player target list has been refreshed | Target ID: ${currentVoiceTarget}`);
+  debug.verbose(`[Main] Player target list has been refreshed | Target ID: ${currentVoiceTarget}`);
 }
 
 export function refreshChannelTargets(): void {
   MumbleClearVoiceTargetChannels(currentVoiceTarget);
   channelTargets.setTarget(currentVoiceTarget);
 
-  debug(`[Main] Channel target list has been refreshed | Target ID: ${currentVoiceTarget}`);
+  debug.verbose(`[Main] Channel target list has been refreshed | Target ID: ${currentVoiceTarget}`);
 }
 
 export function addPlayerToTargetList(playerId: number): void {
@@ -56,7 +71,7 @@ export function addPlayerToTargetList(playerId: number): void {
 
   playerTargets.add(playerId);
 
-  debug(
+  debug.verbose(
     `[Main] Added Player to Target List | Target ID '${currentVoiceTarget}' | Player ID '${playerId}'`,
   );
 }
@@ -68,8 +83,8 @@ export function removePlayerFromTargetList(playerId: number): void {
 
   refreshPlayerTargets();
 
-  debug(
-    `[Main] Removed player from target list | Target ID '${currentVoiceTarget}' | Player ID '${playerId}'`,
+  debug.verbose(
+    `[Main] Removed player from target list | Target ID ${currentVoiceTarget} | Player ID ${playerId}`,
   );
 }
 
@@ -86,8 +101,8 @@ function cycleVoiceProximity(): void {
 
   HUD.updateHUDProximity(Config.voiceRanges[currentProximityRange].name);
 
-  debug(
-    `[Main] Changed Proximity Range | Range  ${Config.voiceRanges[currentProximityRange].name} `,
+  debug.log(
+    `[Main] Changed Proximity Range | Range ${Config.voiceRanges[currentProximityRange].name}`,
   );
 }
 
@@ -132,7 +147,7 @@ async function init(): Promise<void> {
     const chunk = getCurrentChunk({ x: pX, y: pY });
 
     if (currentChunk !== chunk) {
-      debug(`[Main] Updating chunk from ${currentChunk} to ${chunk}`);
+      debug.log(`[Main] Updating chunk from ${currentChunk} to ${chunk}`);
 
       currentChunk = chunk;
 
@@ -144,25 +159,17 @@ async function init(): Promise<void> {
       channelTargets.set([chunk, ...nearbyChunks]);
       channelTargets.setTarget(1);
 
-      debug(`${currentChunk} | [${nearbyChunks}]`);
+      debug.verbose(`${currentChunk} | [${nearbyChunks}]`);
     }
   }, 200);
 
-  debug(`[Main] Voice started!`);
+  debug.log(`[Main] Voice started!`);
 }
 
 on('onClientResourceStart', (resource: string) => {
   if (resource !== GetCurrentResourceName()) {
     return;
   }
-
-  RegisterCommand(
-    'targets',
-    () => {
-      console.log(playerTargets.targets);
-    },
-    false,
-  );
 
   init();
 });

@@ -13,7 +13,9 @@ export function startPhoneCall(playerA: number, playerB: number): string {
   TriggerClientEvent('naxel:player:phone:connect', playerA, playerB, callId);
   TriggerClientEvent('naxel:player:phone:connect', playerB, playerA, callId);
 
-  debug(`[Phone] Call Started | Call ID ${callId} | Player A ${playerA} | Player B ${playerB}`);
+  debug.verbose(
+    `[Phone] Call Started | Call ID ${callId} | Player A ${playerA} | Player B ${playerB}`,
+  );
 
   return callId;
 }
@@ -28,7 +30,7 @@ export function endPhoneCall(callId: string): void {
   TriggerClientEvent('naxel:player:phone:disconnect', callData.playerA, callId);
   TriggerClientEvent('naxel:player:phone:disconnect', callData.playerB, callId);
 
-  debug(
+  debug.verbose(
     `[Phone] Call Ended | Call ID ${callId} | Player A ${callData.playerA} | Player B ${callData.playerB}`,
   );
 
@@ -52,5 +54,5 @@ export async function loadModule(): Promise<void> {
     endPhoneCall(phoneCall.callId);
   });
 
-  debug(`[Phone] Module Loaded`);
+  debug.log(`[Phone] Module Loaded`);
 }

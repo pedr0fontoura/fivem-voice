@@ -22,7 +22,7 @@ function startPhoneCall(serverId: number, callId: string): void {
 
   MumbleSetVolumeOverrideByServerId(serverId, 1.0);
 
-  debug(`[Phone] Call Started | Call ID ${callId} | Player ${serverId}`);
+  debug.log(`[Phone] Call Started | Call ID ${callId} | Player ${serverId}`);
 }
 
 function endPhoneCall(callId: string): void {
@@ -32,7 +32,7 @@ function endPhoneCall(callId: string): void {
 
   removePlayerFromTargetList(currentCall.serverId);
 
-  debug(`[Phone] Call Ended | Call ID ${callId} | Player ${currentCall.serverId}`);
+  debug.log(`[Phone] Call Ended | Call ID ${callId} | Player ${currentCall.serverId}`);
 
   currentCall = null;
 
@@ -43,5 +43,5 @@ export async function loadModule(): Promise<void> {
   addNetEventListener('naxel:player:phone:connect', startPhoneCall.bind(this));
   addNetEventListener('naxel:player:phone:disconnect', endPhoneCall.bind(this));
 
-  debug(`[Phone] Module Loaded`);
+  debug.log(`[Phone] Module Loaded`);
 }

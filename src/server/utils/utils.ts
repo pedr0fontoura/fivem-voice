@@ -1,7 +1,5 @@
 import { Config, Locales } from '../index';
 
-const ResourceName = GetCurrentResourceName();
-
 export function _L(str: string): string {
   if (Locales === null) return `Locale '${Config.locale}' not Found`;
 
@@ -12,11 +10,18 @@ export function _L(str: string): string {
   }
 }
 
-export async function debug(str: string): Promise<void> {
-  if (!Config.enableDebugMode) return;
-
-  console.log(`[${ResourceName}] ${str}`);
-}
+export const debug = {
+  log: (str: string) => {
+    if (Config.debugMode >= 1) {
+      console.log(str);
+    }
+  },
+  verbose: (str: string) => {
+    if (Config.debugMode >= 2) {
+      console.log(str);
+    }
+  },
+};
 
 export function getRandomString(length: number): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
