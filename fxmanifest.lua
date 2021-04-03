@@ -2,11 +2,11 @@ fx_version "cerulean"
 
 games {"gta5"}
 
-description "vRost VoIP Script"
+description "fivem-voice"
 
-author "xIAlexanderIx"
+author "snakewiz"
 
-version "0.1.0"
+version "1.0.0"
 
 ui_page "dist/nui/ui.html"
 

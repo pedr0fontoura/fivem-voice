@@ -1,26 +1,13 @@
 {
-  "name": "vrost",
-  "version": "0.1.0",
-  "description": "FiveM voice chat script using Mumble's API",
+  "name": "fivem-voice",
+  "version": "1.0.0",
+  "description": "Voice script for FiveM using the built in Mumble server",
+  "author": "snakewiz",
+  "license": "MIT",
   "scripts": {
     "build": "webpack --mode production",
     "watch": "webpack watch --mode development"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/xIAlexanderIx/vRost.git"
-  },
-  "keywords": [
-    "cfx",
-    "fivem",
-    "redm"
-  ],
-  "author": "xIAlexanderIx",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/xIAlexanderIx/vRost/issues"
-  },
-  "homepage": "https://github.com/xIAlexanderIx/vRost#readme",
   "devDependencies": {
     "@citizenfx/client": "^2.0.3764-1",
     "@citizenfx/server": "^2.0.3764-1",
