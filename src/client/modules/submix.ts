@@ -23,7 +23,7 @@ SetAudioSubmixEffectRadioFx(phoneEffectId, 1);
 SetAudioSubmixEffectParamInt(phoneEffectId, 1, GetHashKey('default'), 1);
 SetAudioSubmixEffectParamFloat(phoneEffectId, 1, GetHashKey('freq_low'), 700.0);
 SetAudioSubmixEffectParamFloat(phoneEffectId, 1, GetHashKey('freq_hi'), 15000.0);
-AddAudioSubmixOutput(phoneEffectId, 1);
+AddAudioSubmixOutput(phoneEffectId, 0);
 
 export function applyRadioSubmix(serverId: number) {
   debug.verbose(

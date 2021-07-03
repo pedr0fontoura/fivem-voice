@@ -1,12 +1,10 @@
-import * as Radio from './modules/radio';
+import * as ServerState from './modules/serverState';
 import * as Phone from './modules/phone';
+import * as Radio from './modules/radio';
 
 import { debug } from './utils/utils';
 
 import { VoiceConfig } from './types/misc';
-
-const MAP_SIZE = 8192;
-const CHUNK_SIZE = 512;
 
 export const Config: VoiceConfig = {
   debugMode: GetConvarInt('voice_debugMode', 0),
@@ -25,27 +23,13 @@ export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),
 );
 
-function createChannels(): void {
-  const numberOfChunks = (MAP_SIZE * 2) / CHUNK_SIZE;
-  let n = 0;
-
-  debug.log(`[Main] Creating Mumble channels ...`);
-
-  for (let channelId = 0; channelId < numberOfChunks ** 2; channelId++) {
-    MumbleCreateChannel(channelId);
-    n++;
-  }
-
-  debug.log(`[Main] Total channels created: ${n}`);
-}
-
 async function init(): Promise<void> {
   SetConvarReplicated('voice_useNativeAudio', 'true');
   SetConvarReplicated('voice_useSendingRangeOnly', 'true');
 
   debug.log(`[Main] Starting ...`);
 
-  createChannels();
+  ServerState.loadModule();
 
   if (Config.enablePhoneModule) {
     Phone.loadModule();
@@ -58,10 +42,4 @@ async function init(): Promise<void> {
   debug.log('[Main] FiveM Voice started!');
 }
 
-on('onServerResourceStart', (resource: string) => {
-  if (resource !== GetCurrentResourceName()) {
-    return;
-  }
-
-  init();
-});
+init();

@@ -12,7 +12,7 @@ import * as HUD from './modules/hud';
 import { _L, debug, Delay, resetVoice } from './utils';
 
 export const Config: VoiceConfig = {
-  debugMode: GetConvarInt('voice_debugMode', 0),
+  debugMode: GetConvarInt('voice_debugMode', 2),
   enableRadioModule: !!GetConvarInt('voice_enableRadioModule', 1),
   enablePhoneModule: !!GetConvarInt('voice_enablePhoneModule', 1),
   enableSubmixModule: !!GetConvarInt('voice_enableSubmixModule', 1),
@@ -27,6 +27,7 @@ export const Config: VoiceConfig = {
     { name: 'Whisper', distance: 0.75 },
     { name: 'Normal', distance: 2.0 },
     { name: 'Shout', distance: 5.0 },
+    { name: 'Megaphone', distance: 35.0 },
   ],
 };
 
@@ -37,6 +38,8 @@ export const Locales = JSON.parse(
 export let currentProximityRange = 1;
 export let currentVoiceTarget = 1;
 
+let isConnected = false;
+
 let currentChunk: number;
 
 const playerTargets = new PlayerTargetList();
@@ -46,7 +49,6 @@ export function changeVoiceTarget(targetID: number): void {
   currentVoiceTarget = targetID;
 
   MumbleSetVoiceTarget(targetID);
-  console.log();
 
   debug.verbose(`[Main] Voice Target Changed | Target ID '${targetID}'`);
 }
@@ -117,6 +119,8 @@ async function init(): Promise<void> {
   RegisterCommand('+cycleProximity', cycleVoiceProximity.bind(this), false);
   RegisterCommand('-cycleProximity', function () {}, false);
 
+  onNet('voice:player:refreshChannelTargets', refreshChannelTargets);
+
   if (Config.enablePhoneModule) {
     Phone.loadModule();
   }
@@ -138,12 +142,23 @@ async function init(): Promise<void> {
   resetVoice();
 
   setInterval(async () => {
-    while (!MumbleIsConnected()) {
-      currentChunk = null;
-      await Delay(100);
+    const isMumbleConnected = MumbleIsConnected();
+
+    if (isConnected !== isMumbleConnected) {
+      if (isMumbleConnected) {
+        isConnected = true;
+
+        emitNet('voice:player:connected');
+      } else {
+        isConnected = false;
+        currentChunk = null;
+
+        emitNet('voice:player:disconnected');
+        return;
+      }
     }
 
-    const [pX, pY, pZ] = GetEntityCoords(PlayerPedId(), false);
+    const [pX, pY] = GetEntityCoords(PlayerPedId(), false);
 
     const chunk = getCurrentChunk({ x: pX, y: pY });
 
@@ -160,6 +175,11 @@ async function init(): Promise<void> {
       channelTargets.set([chunk, ...nearbyChunks]);
       channelTargets.setTarget(1);
 
+      emitNet('voice:player:updateServerState', {
+        currentChunk,
+        nearbyChunks,
+      });
+
       debug.verbose(`${currentChunk} | [${nearbyChunks}]`);
     }
   }, 200);
@@ -167,10 +187,4 @@ async function init(): Promise<void> {
   debug.log(`[Main] Voice started!`);
 }
 
-on('onClientResourceStart', (resource: string) => {
-  if (resource !== GetCurrentResourceName()) {
-    return;
-  }
-
-  init();
-});
+init();

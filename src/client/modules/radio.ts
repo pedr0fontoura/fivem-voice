@@ -1,4 +1,4 @@
-import { debug, Delay, loadAnimation, _L } from '../utils';
+import { debug, loadAnimation, _L } from '../utils';
 import { Config, addPlayerToTargetList, removePlayerFromTargetList } from '../index';
 
 import { RadioChannel, RadioListener } from '../types/misc';
@@ -19,8 +19,6 @@ const radioChannels: Array<RadioChannel> = [];
 let currentChannel: RadioChannel, currentChannelId: number;
 
 let [isRadioOn, isTalkingOnRadio, radioVolume] = [false, false, 1.0];
-
-let controlNormalTick: number;
 
 function setRadioTargets(listeners: Map<number, RadioListener>): void {
   listeners.forEach(listener => {
