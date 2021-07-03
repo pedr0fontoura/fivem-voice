@@ -29,7 +29,6 @@ export function resetVoice(): void {
   }
 
   MumbleSetAudioInputDistance(Config.voiceRanges[1].distance);
-  MumbleSetAudioOutputDistance(Config.voiceRanges[1].distance);
 
   MumbleSetVoiceTarget(1);
 }

@@ -1,4 +1,3 @@
-import * as ServerState from './modules/serverState';
 import * as Phone from './modules/phone';
 import * as Radio from './modules/radio';
 
@@ -29,8 +28,6 @@ async function init(): Promise<void> {
 
   debug.log(`[Main] Starting ...`);
 
-  ServerState.loadModule();
-
   if (Config.enablePhoneModule) {
     Phone.loadModule();
   }
@@ -39,7 +36,7 @@ async function init(): Promise<void> {
     Radio.loadModule();
   }
 
-  debug.log('[Main] FiveM Voice started!');
+  debug.log('[Main] fivem-voice started!');
 }
 
 init();

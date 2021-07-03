@@ -1,7 +1,6 @@
 import { VoiceConfig } from './types/misc';
 
 import PlayerTargetList from './classes/playerTargetList';
-import ChannelTargetList from './classes/channelTargetList';
 
 import { getCurrentChunk, getSurroundingChunks } from './grid';
 
@@ -35,15 +34,19 @@ export const Locales = JSON.parse(
   LoadResourceFile(GetCurrentResourceName(), `dist/locales/${Config.locale}.json`),
 );
 
+const cachedServerId = GetPlayerServerId(PlayerId());
+
 export let currentProximityRange = 1;
 export let currentVoiceTarget = 1;
 
 let isConnected = false;
 
+let updatingChannel = false;
+
 let currentChunk: number;
+let channelsListening: number[] = [];
 
 const playerTargets = new PlayerTargetList();
-const channelTargets = new ChannelTargetList();
 
 export function changeVoiceTarget(targetID: number): void {
   currentVoiceTarget = targetID;
@@ -58,13 +61,6 @@ export function refreshPlayerTargets(): void {
   playerTargets.setTarget(currentVoiceTarget);
 
   debug.verbose(`[Main] Player target list has been refreshed | Target ID: ${currentVoiceTarget}`);
-}
-
-export function refreshChannelTargets(): void {
-  MumbleClearVoiceTargetChannels(currentVoiceTarget);
-  channelTargets.setTarget(currentVoiceTarget);
-
-  debug.verbose(`[Main] Channel target list has been refreshed | Target ID: ${currentVoiceTarget}`);
 }
 
 export function addPlayerToTargetList(playerId: number): void {
@@ -119,8 +115,6 @@ async function init(): Promise<void> {
   RegisterCommand('+cycleProximity', cycleVoiceProximity.bind(this), false);
   RegisterCommand('-cycleProximity', function () {}, false);
 
-  onNet('voice:player:refreshChannelTargets', refreshChannelTargets);
-
   if (Config.enablePhoneModule) {
     Phone.loadModule();
   }
@@ -129,31 +123,29 @@ async function init(): Promise<void> {
     Radio.loadModule();
   }
 
-  await Delay(1000);
-
   if (Config.enableNUIModule) {
+    await Delay(1000);
+
     HUD.loadModule();
   }
 
   while (!MumbleIsConnected() || !NetworkIsSessionStarted()) {
-    await Delay(250);
+    await Delay(0);
   }
 
   resetVoice();
 
   setInterval(async () => {
+    if (updatingChannel) return;
+
     const isMumbleConnected = MumbleIsConnected();
 
     if (isConnected !== isMumbleConnected) {
       if (isMumbleConnected) {
         isConnected = true;
-
-        emitNet('voice:player:connected');
       } else {
         isConnected = false;
         currentChunk = null;
-
-        emitNet('voice:player:disconnected');
         return;
       }
     }
@@ -165,22 +157,30 @@ async function init(): Promise<void> {
     if (currentChunk !== chunk) {
       debug.log(`[Main] Updating chunk from ${currentChunk} to ${chunk}`);
 
-      currentChunk = chunk;
+      updatingChannel = true;
 
-      MumbleClearVoiceTargetChannels(1);
-      NetworkSetVoiceChannel(currentChunk);
+      NetworkSetVoiceChannel(chunk);
+
+      while (MumbleGetVoiceChannelFromServerId(cachedServerId) !== chunk) {
+        await Delay(0);
+      }
+
+      channelsListening.forEach(channel => MumbleRemoveVoiceChannelListen(channel));
+
+      MumbleClearVoiceTargetChannels(currentVoiceTarget);
 
       const nearbyChunks = getSurroundingChunks({ x: pX, y: pY });
 
-      channelTargets.set([chunk, ...nearbyChunks]);
-      channelTargets.setTarget(1);
+      nearbyChunks.forEach(channel => MumbleAddVoiceChannelListen(channel));
 
-      emitNet('voice:player:updateServerState', {
-        currentChunk,
-        nearbyChunks,
-      });
+      MumbleAddVoiceTargetChannel(currentVoiceTarget, chunk);
 
-      debug.verbose(`${currentChunk} | [${nearbyChunks}]`);
+      currentChunk = chunk;
+      channelsListening = nearbyChunks;
+
+      updatingChannel = false;
+
+      debug.verbose(`[Main] ${currentChunk} | [${nearbyChunks}]`);
     }
   }, 200);
 
